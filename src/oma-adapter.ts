@@ -23,9 +23,8 @@
  *
  * 把 OMA 能力包装成 HTTP handler — baize-loop 主控通过 HttpSlotAdapter 调.
  * 每个 capability 对应一个 route:
- *   POST /chat.agent.schedule  → scheduleAgent
- *   POST /chat.agent.team      → runTeam
- *   POST /chat.loop.execute    → executeLoop
+ *   POST /chat.agent.team.schedule → runTeam
+ *   POST /chat.loop.execute       → executeLoop
  *
  * 协议遵循 baize-loop/meta/slot-api/types.ts SlotRequest/SlotResponse.
  */
@@ -41,31 +40,7 @@ function errorResp(res: Response, status: number, code: string, message: string)
   });
 }
 
-/** POST /chat.agent.schedule */
-export async function handleSchedule(req: Request, res: Response): Promise<void> {
-  const body = (req.body ?? {}) as {
-    agent?: { name?: string; model?: string; systemPrompt?: string };
-    prompt?: string;
-  };
-  if (!body.agent?.name || !body.prompt) {
-    return errorResp(res, 400, "INVALID_REQUEST", "agent.name 和 prompt 必填");
-  }
-  try {
-    const result = await oma.scheduleAgent(
-      {
-        name: body.agent.name,
-        model: body.agent.model ?? process.env.OMA_DEFAULT_MODEL ?? "claude-opus-4-6",
-        systemPrompt: body.agent.systemPrompt,
-      },
-      body.prompt,
-    );
-    res.json({ status: 200, body: result });
-  } catch (err) {
-    return errorResp(res, 500, "UNKNOWN", String(err));
-  }
-}
-
-/** POST /chat.agent.team */
+/** POST /chat.agent.team.schedule */
 export async function handleTeam(req: Request, res: Response): Promise<void> {
   const body = (req.body ?? {}) as {
     team?: { name?: string; agents?: Array<{ name: string; model?: string; systemPrompt?: string }> };

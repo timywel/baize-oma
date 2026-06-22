@@ -27,8 +27,7 @@
  * 路由:
  *   GET  /health                  → 健康检查
  *   GET  /manifest                → slot.json 内容 (主控可拉取验证)
- *   POST /chat.agent.schedule     → 单 agent 调度
- *   POST /chat.agent.team         → 多 agent team 协作
+ *   POST /chat.agent.team.schedule → 多 agent team 协作
  *   POST /chat.loop.execute       → 通用 loop 执行
  */
 
@@ -37,7 +36,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 import { initOmaEngine, isOmaReady } from "./oma-client.js";
-import { handleSchedule, handleTeam, handleLoop } from "./oma-adapter.js";
+import { handleTeam, handleLoop } from "./oma-adapter.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const SLOT_JSON_PATH = join(__dirname, "..", "slot.json");
@@ -70,8 +69,7 @@ app.get("/manifest", (_req: Request, res: Response) => {
 });
 
 /** 能力路由 */
-app.post("/chat.agent.schedule", handleSchedule);
-app.post("/chat.agent.team", handleTeam);
+app.post("/chat.agent.team.schedule", handleTeam);
 app.post("/chat.loop.execute", handleLoop);
 
 /** 404 兜底 */
@@ -88,5 +86,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 initOmaEngine();
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: chat.agent.schedule / chat.agent.team / chat.loop.execute)`);
+  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: chat.agent.team.schedule / chat.loop.execute)`);
 });

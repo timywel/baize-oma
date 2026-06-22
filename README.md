@@ -12,8 +12,7 @@ baize-loop 主控通过 [HttpSlotAdapter](https://github.com/timywel/baize-loop/
 
 | Capability | HTTP Route | 对应 OMA API |
 |---|---|---|
-| `chat.agent.schedule` | `POST /chat.agent.schedule` | `OpenMultiAgent.runAgent()` |
-| `chat.agent.team` | `POST /chat.agent.team` | `OpenMultiAgent.runTeam()` |
+| `chat.agent.team.schedule` | `POST /chat.agent.team.schedule` | `OpenMultiAgent.runTeam()` |
 | `chat.loop.execute` | `POST /chat.loop.execute` | `OpenMultiAgent.runAgent()` (loop wrapper) |
 
 健康检查 + manifest:

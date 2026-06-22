@@ -9,8 +9,7 @@
     }
   },
   "capabilities": [
-    "chat.agent.schedule",
-    "chat.agent.team",
+    "chat.agent.team.schedule",
     "chat.loop.execute"
   ],
   "healthDegradedMs": 30000,
