@@ -1,0 +1,19 @@
+{
+  "id": "baize-oma",
+  "version": "0.1.0",
+  "type": "http",
+  "entry": {
+    "http": {
+      "baseUrl": "http://127.0.0.1:20060",
+      "healthPath": "/health"
+    }
+  },
+  "capabilities": [
+    "chat.agent.schedule",
+    "chat.agent.team",
+    "chat.loop.execute"
+  ],
+  "healthDegradedMs": 30000,
+  "healthUnhealthyMs": 60000,
+  "allowBreakingVersion": false
+}
