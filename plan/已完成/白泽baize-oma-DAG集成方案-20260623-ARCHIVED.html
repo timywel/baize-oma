@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[ARCHIVED 2026-06-25] 白泽 baize-oma DAG 任务拆解集成方案 (2026-06-23)</title>
+<style>
+:root {
+  --green: #22c55e; --yellow: #eab308; --red: #ef4444; --blue: #3b82f6;
+  --orange: #f97316; --purple: #a855f7; --gray: #6b7280;
+  --bg: #ffffff; --text: #1f2937; --border: #e5e7eb; --code-bg: #f3f4f6;
+  --code-text: #1e293b;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #1a1a1a; --text: #e5e7eb; --border: #374151; --code-bg: #1f2937; --code-text: #f1f5f9; }
+}
+* { box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.7; max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; color: var(--text); background: var(--bg); }
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.3; margin-top: 2rem; }
+h1 { font-size: 2rem; border-bottom: 3px solid var(--blue); padding-bottom: 0.5rem; }
+h2 { font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 0.3rem; margin-top: 2.5rem; }
+h3 { font-size: 1.2rem; color: var(--blue); margin-top: 1.5rem; }
+h4 { font-size: 1.05rem; color: var(--orange); }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.92em; }
+th, td { border: 1px solid var(--border); padding: 0.5rem 0.75rem; text-align: left; vertical-align: top; }
+th { background: var(--code-bg); font-weight: 600; }
+tr:nth-child(even) { background: rgba(0,0,0,0.02); }
+code, .mono { background: var(--code-bg); padding: 0.15em 0.4em; border-radius: 3px; font-family: "SF Mono", Consolas, Menlo, monospace; font-size: 0.88em; color: var(--code-text); }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); color: var(--code-text); }
+pre code { background: transparent; padding: 0; }
+blockquote { border-left: 4px solid var(--blue); margin: 1rem 0; padding: 0.5rem 1rem; background: var(--code-bg); border-radius: 0 4px 4px 0; }
+hr { border: none; border-top: 1px dashed var(--border); margin: 2.5rem 0; }
+.badge { display: inline-block; padding: 0.15em 0.55em; border-radius: 4px; font-size: 0.85em; font-weight: 600; color: white; margin: 0 0.2em; }
+.badge-green { background: var(--green); }
+.badge-yellow { background: var(--yellow); color: #422006; }
+.badge-red { background: var(--red); }
+.badge-blue { background: var(--blue); }
+.badge-orange { background: var(--orange); }
+.badge-purple { background: var(--purple); }
+.badge-gray { background: var(--gray); }
+.meta-card { background: var(--code-bg); border-left: 4px solid var(--blue); padding: 1rem 1.5rem; margin: 1.5rem 0; border-radius: 0 6px 6px 0; }
+.meta-card-red { border-left-color: var(--red); }
+.meta-card-yellow { border-left-color: var(--yellow); }
+.meta-card-green { border-left-color: var(--green); }
+.meta-card-orange { border-left-color: var(--orange); }
+.md-link { background: var(--yellow); color: #422006; padding: 0.6rem 1rem; border-radius: 4px; margin: 1rem 0; font-family: monospace; font-size: 0.9em; border-left: 4px solid #b45309; }
+.toc { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem 1.5rem; margin: 0 0 2rem 0; }
+.toc h3 { margin-top: 0; color: var(--blue); font-size: 1.05rem; }
+.toc ol { padding-left: 1.2rem; margin: 0.5rem 0; }
+.toc li { margin: 0.2rem 0; }
+.toc a { text-decoration: none; color: var(--text); }
+.toc a:hover { color: var(--blue); }
+.exec-summary { background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(168,85,247,0.08)); border: 1px solid var(--blue); border-radius: 8px; padding: 1.5rem 2rem; margin: 2rem 0; }
+.exec-summary h2 { margin-top: 0.5rem; border-bottom-color: var(--blue); }
+.flow-diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin: 1rem 0; font-family: monospace; font-size: 0.85em; line-height: 1.5; white-space: pre; overflow-x: auto; }
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0.8rem; margin: 1rem 0; }
+.stat-card { padding: 0.8rem 1rem; background: var(--code-bg); border-radius: 6px; text-align: center; }
+.stat-card .num { font-size: 1.8rem; font-weight: 700; display: block; }
+.stat-card .label { font-size: 0.85em; color: #6b7280; }
+</style>
+</head>
+<body>
+
+<div class="md-link">
+<strong>📄 对应 .md 源文件:</strong> <code>plan/refactor/slots-and-libs/chat/白泽baize-oma-DAG集成方案-20260623.md</code>
+</div>
+
+<div class="meta-card">
+<strong>📋 baize-oma 仓专题文档</strong> · 状态: <span class="badge badge-yellow">pending approval</span> · 创建: 2026-06-23 20:30 UTC+8<br>
+<strong>作者</strong>: BaiZe 架构 (基于 1 轮架构讨论 + 调研)<br>
+<strong>Plan ID</strong>: <code>PLAN-BAIZE-OMA-DAG-INTEGRATION-20260623</code><br>
+<strong>父文档</strong>: <code>plan/refactor/slots-and-libs/chat/baize-chat-architecture-20260623.md</code> (baize-chat 架构专题)<br>
+<strong>目标仓</strong>: <code>baize-slot/baize-oma/</code> (HTTP slot, port 20060)
+</div>
+
+<h1>白泽 baize-oma DAG 任务拆解集成方案 (2026-06-23)</h1>
+
+<blockquote>
+<p>本专题文档互补 baize-oma 仓现有 <code>PLAN-UPGRADE-20260622.md</code>, 不重写。承载: baize-oma 仓 DAG 任务拆解能力整合方案 (替代进程内 <code>OMADecomposer</code>) + HTTP 接口设计 + 实施路径。</p>
+</blockquote>
+
+<div class="exec-summary">
+<h2>🎯 核心结论</h2>
+
+<div class="stats-grid">
+<div class="stat-card"><span class="num" style="color: var(--blue);">方案 C</span><span class="label">集成 baize-oma (拍板)</span></div>
+<div class="stat-card"><span class="num" style="color: var(--green);">+1 端点</span><span class="label">POST /oma.team.create</span></div>
+<div class="stat-card"><span class="num" style="color: var(--orange);">~200 行</span><span class="label">decomposer.ts + routes</span></div>
+<div class="stat-card"><span class="num" style="color: var(--red);">2026-12 后</span><span class="label">删进程内 OMADecomposer</span></div>
+</div>
+</div>
+
+<div class="toc">
+<h3>📑 目录</h3>
+<ol>
+<li><a href="#s1">baize-oma 仓当前能力 (2026-06-23)</a></li>
+<li><a href="#s2">DAG 任务拆解能力整合 (本期重点)</a></li>
+<li><a href="#s3">HTTP 接口设计 (baize-oma 仓内)</a></li>
+<li><a href="#s4">端到端集成 (baize-chat ↔ baize-oma ↔ baize-switch)</a></li>
+<li><a href="#s5">实施路径 (baize-oma 仓内)</a></li>
+<li><a href="#s6">风险与边界</a></li>
+<li><a href="#s7">决策记录</a></li>
+<li><a href="#s8">关联文档</a></li>
+</ol>
+</div>
+
+<!-- ================================================================== -->
+<hr id="s1">
+<h1>1. baize-oma 仓当前能力 (2026-06-23)</h1>
+
+<h2>1.1 仓位置与状态</h2>
+<table>
+<thead><tr><th>项</th><th>值</th></tr></thead>
+<tbody>
+<tr><td>仓位置</td><td><code>/home/timywel/AI_Product/baize-slot/baize-oma/</code></td></tr>
+<tr><td>slot.json type</td><td><code>http</code></td></tr>
+<tr><td>端口</td><td>20060 (<code>BAIZE_OMA_PORT</code> 可覆盖)</td></tr>
+<tr><td>Capabilities</td><td><code>chat.agent.team.schedule</code> + <code>chat.loop.execute</code> (2 个)</td></tr>
+<tr><td>vendor 库</td><td>open-multi-agent 1.8.0 (patch-package 工作流)</td></tr>
+<tr><td>现有 HTTP 端点</td><td><code>POST /chat.agent.team.schedule</code> / <code>POST /chat.loop.execute</code> / <code>GET /health</code> / <code>GET /manifest</code></td></tr>
+</tbody>
+</table>
+
+<h2>1.2 现有职责边界</h2>
+<table>
+<thead><tr><th>职责</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>多 Agent 拓扑调度 (runTasks / runTeam)</td><td>✅ 已实现</td></tr>
+<tr><td>单 agent 循环 (runAgent)</td><td>✅ 已实现</td></tr>
+<tr><td>共享记忆 (sharedMemory)</td><td>✅ 已实现</td></tr>
+<tr><td>coordinator 综合输出</td><td>✅ 已实现</td></tr>
+<tr><td><strong>DAG 任务拆解 (decompose)</strong></td><td>⚠️ <strong>推测已实现 (主控 <code>decomposeViaOma</code> 已切到 baize-oma HTTP), 待 baize-oma 仓显式确认</strong></td></tr>
+<tr><td>LLM 流式输出</td><td>⚠️ 推测依赖 baize-switch 网关 (类似 chat 仓设计)</td></tr>
+<tr><td>前端 widget 渲染</td><td>❌ 不做 (baize-chat 仓职责)</td></tr>
+</tbody>
+</table>
+
+<h2>1.3 与 baize-chat 仓的关系</h2>
+<table>
+<thead><tr><th>维度</th><th>baize-oma</th><th>baize-chat</th></tr></thead>
+<tbody>
+<tr><td><strong>类型</strong></td><td>http slot (独立进程)</td><td>process slot (主控进程内)</td></tr>
+<tr><td><strong>角色</strong></td><td>调度者 (跑多 agent)</td><td>编排者 (拼 prompt + 委派 + 推前端)</td></tr>
+<tr><td><strong>职责</strong></td><td>实际跑多 agent 调度算法</td><td>接收用户消息, 委派给 oma, 推 LLMEvent 流</td></tr>
+<tr><td><strong>HTTP</strong></td><td>暴露端口 20060</td><td>通过 slot-bridge 调 oma</td></tr>
+<tr><td><strong>LLM</strong></td><td>内部 HTTP 调 baize-switch:20030</td><td><strong>不直连 LLM</strong> (违反 chat 仓架构原则)</td></tr>
+</tbody>
+</table>
+
+<!-- ================================================================== -->
+<hr id="s2">
+<h1>2. DAG 任务拆解能力整合 (本期重点)</h1>
+
+<h2>2.1 进程内 OMADecomposer 弃用原因 (Phase 3 2026-06-22)</h2>
+<p><strong>位置</strong>: <code>baize-loop/src/loop/oma-client.ts</code> (397 行)</p>
+<p><strong>当前状态</strong>: 类仍存在, 但<strong>被新代码弃用</strong></p>
+
+<p><strong>弃用原因</strong>:</p>
+<ol>
+<li><strong>进程内拆解需要本地 LLM API key</strong> (<code>process.env.MINIMAX_API_KEY</code>), 跟"chat 仓不直连 LLM"原则冲突</li>
+<li><strong>进程内拆解无法跨进程复用</strong>, 性能差</li>
+<li><strong>HTTP 委派给 baize-oma 后</strong>, LLM 配置统一在 baize-switch 网关, 符合"中转站"原则</li>
+<li><strong>主控仓代码注释明确</strong>: "OMADecomposer 改为 HTTP 调 baize-oma" (<code>loop.ts:251</code>, <code>oh-chat.ts:12,25</code>)</li>
+</ol>
+
+<p><strong>保留原因</strong> (暂时不删):</p>
+<ul>
+<li>主控仓测试 (<code>meta/__tests__/oma-engine-extract-reasoning.test.ts</code>) 仍依赖</li>
+<li>历史兼容 (baize-loop 老 chat 流程可能用)</li>
+<li>一次性删除风险大 (12-rollout "不删老 baize-loop" 约束)</li>
+</ul>
+
+<h2>2.2 baize-oma 仓内 DAG 拆解的职责 (拍板)</h2>
+<table>
+<thead><tr><th>职责</th><th>属于 baize-oma</th><th>属于 baize-chat</th><th>属于 baize-switch</th></tr></thead>
+<tbody>
+<tr><td>收用户输入 + 拆解成 DAG</td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>调 LLM 拆解 (HTTP 调 switch)</td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>归一化 OMADag (nodes + edges + agentRole)</td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>暴露 HTTP 端点 <code>/oma.team.create</code></td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>跑拓扑调度 (runTasks)</td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>coordinator 综合</td><td>✅ 是</td><td>❌</td><td>❌</td></tr>
+<tr><td>LLM 流式输出</td><td>✅ 是</td><td>❌</td><td>✅ (基础)</td></tr>
+<tr><td>转 omaTasks + 委派给 oma</td><td>❌</td><td>✅ 是</td><td>❌</td></tr>
+<tr><td>推前端 (WS 帧)</td><td>❌</td><td>✅ 是</td><td>❌</td></tr>
+<tr><td>渲染 widget</td><td>❌</td><td>✅ 是</td><td>❌</td></tr>
+</tbody>
+</table>
+<p><strong>结论</strong>: <strong>DAG 拆解完全在 baize-oma 仓职责内</strong>, baize-chat 仓只写真业务 (接收用户消息 → 委派给 oma → 推前端)。</p>
+
+<h2>2.3 4 个候选方案评估 (与 baize-chat 架构专题 §4.7.3 一致)</h2>
+<table>
+<thead><tr><th>方案</th><th>描述</th><th>拍板</th></tr></thead>
+<tbody>
+<tr><td><strong>A: 独立 baize-decomposer 仓</strong></td><td>新建独立仓, 端口 20070, 独立 HTTP 进程</td><td>❌ 拒绝 (与 oma 职责重叠)</td></tr>
+<tr><td><strong>B: 集成 baize-chat 仓</strong></td><td>DAG 拆解放 <code>baize-chat/src/backend/decomposer/</code></td><td>❌ 拒绝 (违反 chat 不直连 LLM 原则)</td></tr>
+<tr><td><strong>C: 集成 baize-oma 仓</strong></td><td>拆解在 oma 内, 与 oma 调度天然一体</td><td>✅ <strong>拍板</strong></td></tr>
+<tr><td><strong>D: 集成 baize-switch 网关</strong></td><td>拆解放 switch 仓 (LLM 基础设施层)</td><td>❌ 拒绝 (switch 职责错位)</td></tr>
+</tbody>
+</table>
+
+<p><strong>拍板理由</strong> (5 个):</p>
+<ol>
+<li>当前现状已倾向 C (主控 <code>decomposeViaOma</code> 已切到 HTTP 调 baize-oma)</li>
+<li>集成 chat 违反 chat 仓架构原则 (chat 不直连 LLM)</li>
+<li>独立仓多此一举 (oma 已能拆解)</li>
+<li>集成 oma 最自然 (拆解+调度天然一体, 共用 LLM 配置)</li>
+<li>集成 switch 错位 (switch 是 LLM 基础设施, 拆解是 chat 业务)</li>
+</ol>
+
+<!-- ================================================================== -->
+<hr id="s3">
+<h1>3. HTTP 接口设计 (baize-oma 仓内)</h1>
+
+<h2>3.1 新增 HTTP 端点</h2>
+<table>
+<thead><tr><th>端点</th><th>方法</th><th>Capability</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>POST /oma.team.create</code></td><td>POST</td><td>(扩展现有 <code>chat.agent.team.schedule</code>)</td><td>创建 agent team + 拆解, 返回 DAG</td></tr>
+<tr><td><code>POST /chat.agent.team.schedule</code></td><td>POST</td><td><code>chat.agent.team.schedule</code></td><td>跑拓扑调度 (现有, 不变)</td></tr>
+<tr><td><code>POST /chat.loop.execute</code></td><td>POST</td><td><code>chat.loop.execute</code></td><td>单 agent 循环 (现有, 不变)</td></tr>
+<tr><td><code>GET /health</code></td><td>GET</td><td>-</td><td>健康检查 (现有)</td></tr>
+<tr><td><code>GET /manifest</code></td><td>GET</td><td>-</td><td>slot.json 内容 (现有)</td></tr>
+</tbody>
+</table>
+
+<h2>3.2 <code>/oma.team.create</code> 请求 / 响应规范</h2>
+
+<h3>请求 (baize-chat → baize-oma)</h3>
+<pre><code>POST baize-oma:20060/oma.team.create
+Content-Type: application/json
+{
+  "name": "skill-loop-decomposer",
+  "agents": [{
+    "name": "decomposer",
+    "model": "MiniMax-M2.7",
+    "systemPrompt": "把用户输入拆成 DAG 子任务 (JSON 数组)."
+  }],
+  "input": "分析 Python 和 Rust 性能差异",
+  "options": {
+    "depth": 0,
+    "maxDepth": 3,
+    "minNodes": 3,
+    "maxNodes": 6
+  }
+}</code></pre>
+
+<h3>请求字段</h3>
+<table>
+<thead><tr><th>字段</th><th>类型</th><th>必填</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>name</code></td><td>string</td><td>✅</td><td>Team 标识 (用于日志)</td></tr>
+<tr><td><code>agents</code></td><td>array</td><td>✅</td><td>Agent 配置, 至少 1 个 (decomposer)</td></tr>
+<tr><td><code>agents[].name</code></td><td>string</td><td>✅</td><td>Agent 名称 (decomposer / coordinator)</td></tr>
+<tr><td><code>agents[].model</code></td><td>string</td><td>✅</td><td>LLM 模型名 (MiniMax-M2.7 / claude-sonnet-4-6 / gpt-4o)</td></tr>
+<tr><td><code>agents[].systemPrompt</code></td><td>string</td><td>✅</td><td>Agent 系统提示词 (decomposer 的拆解 prompt)</td></tr>
+<tr><td><code>input</code></td><td>string</td><td>✅</td><td>用户输入 (待拆解的目标)</td></tr>
+<tr><td><code>options.depth</code></td><td>number</td><td>❌</td><td>递归深度 (默认 0)</td></tr>
+<tr><td><code>options.maxDepth</code></td><td>number</td><td>❌</td><td>最大递归深度 (默认 3)</td></tr>
+<tr><td><code>options.minNodes</code></td><td>number</td><td>❌</td><td>最少节点数 (默认 3)</td></tr>
+<tr><td><code>options.maxNodes</code></td><td>number</td><td>❌</td><td>最多节点数 (默认 6)</td></tr>
+</tbody>
+</table>
+
+<h3>响应 (baize-oma → baize-chat)</h3>
+<pre><code>HTTP 200 OK
+Content-Type: application/json
+{
+  "taskDag": {
+    "nodes": [
+      {
+        "id": "task-1",
+        "title": "调研 Python 性能",
+        "description": "研究 Python 在计算密集和 IO 场景下的性能表现",
+        "agentRole": "researcher",
+        "dependsOn": []
+      },
+      {
+        "id": "task-2",
+        "title": "调研 Rust 性能",
+        "description": "研究 Rust 在系统编程、内存安全和并发场景下的性能优势",
+        "agentRole": "researcher",
+        "dependsOn": []
+      },
+      {
+        "id": "task-3",
+        "title": "对比分析",
+        "description": "综合两者数据, 分析适用场景差异, 给出学习路径建议",
+        "agentRole": "reviewer",
+        "dependsOn": ["task-1", "task-2"]
+      }
+    ],
+    "edges": [
+      { "from": "task-1", "to": "task-3" },
+      { "from": "task-2", "to": "task-3" }
+    ]
+  },
+  "meta": {
+    "teamId": "team-uuid-12345",
+    "decomposedAt": "2026-06-23T10:30:45.123Z",
+    "decomposerModel": "MiniMax-M2.7",
+    "durationMs": 450
+  }
+}</code></pre>
+
+<h3>响应字段</h3>
+<table>
+<thead><tr><th>字段</th><th>类型</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>taskDag.nodes</code></td><td>array</td><td>拆解后的任务节点 (3-6 个)</td></tr>
+<tr><td><code>taskDag.nodes[].id</code></td><td>string</td><td>节点 ID (task-1, task-2, ...)</td></tr>
+<tr><td><code>taskDag.nodes[].title</code></td><td>string</td><td>任务标题 (≤ 20 字)</td></tr>
+<tr><td><code>taskDag.nodes[].description</code></td><td>string</td><td>任务详细描述</td></tr>
+<tr><td><code>taskDag.nodes[].agentRole</code></td><td>string</td><td>角色 (researcher/architect/coder/reviewer/generic)</td></tr>
+<tr><td><code>taskDag.nodes[].dependsOn</code></td><td>array</td><td>依赖的其他节点 ID 数组</td></tr>
+<tr><td><code>taskDag.edges</code></td><td>array</td><td>节点依赖关系 (显式 edges, 用于渲染图)</td></tr>
+<tr><td><code>meta.teamId</code></td><td>string</td><td>Team UUID (后续 schedule 用)</td></tr>
+<tr><td><code>meta.decomposedAt</code></td><td>string</td><td>拆解时间 (ISO 8601)</td></tr>
+<tr><td><code>meta.decomposerModel</code></td><td>string</td><td>实际使用的 LLM 模型</td></tr>
+<tr><td><code>meta.durationMs</code></td><td>number</td><td>拆解耗时 (ms)</td></tr>
+</tbody>
+</table>
+
+<h3>错误响应</h3>
+<pre><code>HTTP 400 Bad Request
+{
+  "error": {
+    "code": "INVALID_REQUEST",
+    "message": "agents 不能为空",
+    "i18nKey": "errors.baize-oma.invalid_request"
+  }
+}
+
+HTTP 500 Internal Server Error
+{
+  "error": {
+    "code": "UPSTREAM_DOWN",
+    "message": "baize-switch 网关不可达, LLM 拆解失败",
+    "i18nKey": "errors.baize-oma.upstream_down",
+    "detail": { "upstream": "baize-switch:20030", "status": 503 }
+  }
+}
+
+HTTP 504 Gateway Timeout
+{
+  "error": {
+    "code": "TIMEOUT",
+    "message": "LLM 拆解超时 (60s)",
+    "i18nKey": "errors.baize-oma.timeout",
+    "detail": { "elapsedMs": 60000 }
+  }
+}</code></pre>
+
+<h2>3.3 内部实现 (baize-oma 仓内)</h2>
+
+<h3>新文件: <code>baize-oma/src/decomposer.ts</code> (~150 行)</h3>
+<pre><code>// baize-oma/src/decomposer.ts (伪代码, 实际写真时写真)
+import { OpenMultiAgent } from '../vendor/open-multi-agent/src/dist/index.js';
+import { slotBridge } from '../../../baize-loop/meta/core/slot-bridge';
+
+export class Decomposer {
+  private oma: OpenMultiAgent;
+
+  constructor() {
+    this.oma = new OpenMultiAgent({ /* 配置 */ });
+  }
+
+  /**
+   * 调 LLM 拆解输入成 DAG
+   * @param input 用户输入
+   * @param agents agent 配置 (含 systemPrompt)
+   * @param options 拆解选项 (depth, maxDepth 等)
+   * @returns OMADag
+   */
+  async decompose(
+    input: string,
+    agents: AgentConfig[],
+    options: DecomposeOptions
+  ): Promise<{ taskDag: OMADag; meta: DecomposeMeta }&gt; {
+    const startTime = Date.now();
+    const teamId = uuid();
+
+    // 1. 调 OpenMultiAgent 库, 跑 createTeam
+    const team = await this.oma.createTeam({
+      name: `decomposer-${teamId}`,
+      agents,
+    });
+
+    // 2. 库内部 HTTP 调 baize-switch:20030 拿 LLM
+    const rawDag = await team.runAgent({
+      agentName: 'decomposer',
+      input,
+      outputFormat: 'json',
+    });
+
+    // 3. 归一化: JSON 数组 → OMADag (nodes + edges)
+    const taskDag = this.normalizeToOMADag(rawDag);
+
+    // 4. 递归深拆 (可选, 复杂 leaf 自动二次拆解)
+    if (options.depth &lt; options.maxDepth) {
+      for (const node of taskDag.nodes) {
+        if (this.isComplexLeaf(node)) {
+          const subDag = await this.decompose(node.description, agents, {
+            ...options,
+            depth: options.depth + 1,
+          });
+          this.mergeSubDag(taskDag, subDag, node.id);
+        }
+      }
+    }
+
+    return {
+      taskDag,
+      meta: {
+        teamId,
+        decomposedAt: new Date().toISOString(),
+        decomposerModel: agents[0].model,
+        durationMs: Date.now() - startTime,
+      },
+    };
+  }
+
+  private normalizeToOMADag(raw: any): OMADag { /* 验证 + 提取 */ }
+  private isComplexLeaf(node: OMANode): boolean { return node.description.length &gt; 80; }
+  private mergeSubDag(parent: OMADag, sub: OMADag, parentId: string): void { /* parent-id.N 命名空间 */ }
+}</code></pre>
+
+<h3>新文件: <code>baize-oma/src/routes/decompose.ts</code> (~50 行)</h3>
+<pre><code>// baize-oma/src/routes/decompose.ts
+import { Router } from 'express';
+import { Decomposer } from '../decomposer.js';
+
+const router = Router();
+const decomposer = new Decomposer();
+
+router.post('/oma.team.create', async (req, res) =&gt; {
+  try {
+    const { name, agents, input, options } = req.body;
+    const result = await decomposer.decompose(input, agents, options || {});
+    res.json(result);
+  } catch (err) {
+    res.status(err.status || 500).json({
+      error: {
+        code: err.code || 'UNKNOWN',
+        message: err.message,
+        i18nKey: err.i18nKey,
+        detail: err.detail,
+      },
+    });
+  }
+});
+
+export default router;</code></pre>
+
+<h3>修改文件: <code>baize-oma/src/server.ts</code> (注册新路由)</h3>
+<pre><code>// baize-oma/src/server.ts (追加)
+import decomposeRouter from './routes/decompose.js';
+
+app.use('/', decomposeRouter);  // 挂载 /oma.team.create</code></pre>
+
+<h2>3.4 slot.json 能力扩展</h2>
+<pre><code>// baize-oma/slot.json (扩展)
+{
+  "id": "baize-oma",
+  "version": "0.2.0",  // bump version (新增 capability)
+  "type": "http",
+  "entry": {
+    "http": {
+      "baseUrl": "http://127.0.0.1:20060",
+      "healthPath": "/health"
+    }
+  },
+  "capabilities": [
+    "task.decompose",   // 🆕 新增
+    "chat.agent.team.schedule",
+    "chat.loop.execute"
+  ],
+  "healthDegradedMs": 30000,
+  "healthUnhealthyMs": 60000,
+  "allowBreakingVersion": false
+}</code></pre>
+<p><strong>注意</strong>: 当前方案把 <code>/oma.team.create</code> 视为<strong>现有 <code>chat.agent.team.schedule</code> capability 的扩展</strong>, 而不是新 capability <code>task.decompose</code>。<strong>2026-12 后评估</strong>是否拆成独立 capability <code>task.decompose</code> 更清晰。</p>
+
+<h2>3.5 进程内 OMADecomposer 类的处理</h2>
+<p><strong>当前状态</strong>: <code>baize-loop/src/loop/oma-client.ts:26</code> 进程内类仍存在</p>
+
+<p><strong>最终处置</strong> (2026-12 后评估):</p>
+<ul>
+<li>✅ <strong>保留</strong>: baize-oma decompose 稳定 6 个月 + 主控仓测试全部迁到 baize-oma HTTP 路径 → 删 <code>src/loop/oma-client.ts</code> 的 OMADecomposer 类</li>
+<li>❌ <strong>不满足</strong>: 保留类, 但加 <code>@deprecated</code> 注释 (建议改用 baize-oma HTTP 拆解)</li>
+</ul>
+<p><strong>本期范围</strong>: 不删进程内类, 但 baize-oma 仓提供 HTTP 拆解能力作为<strong>主路径</strong>。</p>
+
+<!-- ================================================================== -->
+<hr id="s4">
+<h1>4. 端到端集成 (baize-chat ↔ baize-oma ↔ baize-switch)</h1>
+
+<h2>4.1 完整流程图</h2>
+<div class="flow-diagram">
+用户输入 "分析 Python 和 Rust 性能差异"
+    ↓
+baize-chat 仓 (process slot, 主控进程内)
+    ├─ 接收 SlotRequest { route: "chat.message.send", body: { text: "..." } }
+    ├─ 查 profile (chat.profile.match)
+    ├─ 拼 prompt (注入 memory + graph 召回)
+    └─ 决定 source: "oma"
+        ↓
+baize-chat.oma-adapter.decomposeGoal(text)
+    ↓ HTTP POST baize-oma:20060/oma.team.create
+baize-oma 仓 (HTTP server, port 20060)
+    ├─ 收 HTTP 请求
+    ├─ 委派给 Decomposer 类
+    │   ├─ OpenMultiAgent.createTeam({ name, agents: [decomposer] })
+    │   ├─ HTTP 调 baize-switch:20030/v1/messages (LLM API)
+    │   ├─ 收 LLM 拆解结果 (JSON 数组)
+    │   ├─ 归一化为 OMADag (nodes + edges)
+    │   └─ 递归深拆 (maxDepth=3, 复杂 leaf 自动二次拆解)
+    └─ HTTP 200 返回 { taskDag, meta }
+        ↓
+baize-chat 仓 (继续)
+    ├─ 收 taskDag
+    ├─ 转 omaTasks (遍历 nodes + edges, 按 dependsOn 排序)
+    └─ baize-chat.oma-adapter.scheduleTeam(omaTasks)
+        ↓ HTTP POST baize-oma:20060/chat.agent.team.schedule
+baize-oma 仓 (再调一次)
+    ├─ 收 omaTasks
+    ├─ runTasks(team, omaTasks, options) (OMA 库拓扑调度)
+    ├─ 每个 task 调 LLM (经 baize-switch)
+    │   └─ 流式 LLMEvent 回 baize-chat 适配层
+    └─ coordinator 综合
+        ↓
+baize-chat 仓 (收综合结果)
+    ├─ 归一化为 LLMEvent 流 (text_delta / agent_status / done)
+    └─ 推前端 (WS 帧, 事件名 chat.message.*)
+</div>
+
+<h2>4.2 总 HTTP 调用次数</h2>
+<table>
+<thead><tr><th>阶段</th><th>HTTP 调用</th><th>网络延迟</th></tr></thead>
+<tbody>
+<tr><td>用户发消息 → chat 处理</td><td>0 (process 内)</td><td>&lt; 5ms</td></tr>
+<tr><td>chat.oma-adapter.decomposeGoal</td><td>1 (chat → oma)</td><td>~500ms</td></tr>
+<tr><td>oma.decompose (内部)</td><td>1 (oma → switch)</td><td>~1500ms (LLM 拆解)</td></tr>
+<tr><td>chat.oma-adapter.scheduleTeam</td><td>1 (chat → oma)</td><td>~200ms</td></tr>
+<tr><td>oma.runTasks (内部 N 次)</td><td>N (oma → switch)</td><td>~3-10s (LLM 调度)</td></tr>
+<tr><td>oma.coordinator 综合</td><td>1 (oma → switch)</td><td>~800ms</td></tr>
+<tr><td>chat 推前端</td><td>0 (process 内)</td><td>&lt; 5ms</td></tr>
+<tr><td><strong>总计</strong></td><td><strong>3 + N</strong></td><td><strong>~6-12s</strong></td></tr>
+</tbody>
+</table>
+
+<h2>4.3 失败回退策略</h2>
+<table>
+<thead><tr><th>失败环节</th><th>回退策略</th></tr></thead>
+<tbody>
+<tr><td>oma.decompose 失败 (LLM 拆解超时)</td><td>chat 跳过 DAG 拆解, 直接走 quick 模式 (单 LLM 调用)</td></tr>
+<tr><td>oma.scheduleTeam 失败 (拓扑调度失败)</td><td>chat 返回错误给用户, 提示重试</td></tr>
+<tr><td>oma.runTasks 部分 task 失败</td><td>chat 继续收其他 task 结果, 失败 task 标 failed 状态</td></tr>
+<tr><td>oma.coordinator 综合失败</td><td>chat 返回部分结果 + 失败提示</td></tr>
+</tbody>
+</table>
+
+<!-- ================================================================== -->
+<hr id="s5">
+<h1>5. 实施路径 (baize-oma 仓内)</h1>
+
+<h2>5.1 阶段 1: 显式记录 (本期范围, 1-2 天)</h2>
+<p><strong>任务</strong>:</p>
+<ol>
+<li>写真本专题文档 (md + html, 已在产出)</li>
+<li>同步 <code>PLAN-UPGRADE-20260622.md</code>, 加 §DAG 拆解整合章节</li>
+<li>同步 <code>README.md</code>, 更新 capability 表</li>
+<li>同步 <code>slot.json</code> 注释 (说明 <code>chat.agent.team.schedule</code> 扩展为包含 decompose)</li>
+</ol>
+<p><strong>commit</strong>: <code>docs(oma): 整合 DAG 任务拆解能力 (方案 C 拍板)</code></p>
+
+<h2>5.2 阶段 2: 写真 decomposer.ts (1 周)</h2>
+<p><strong>任务</strong>:</p>
+<ol>
+<li>新建 <code>baize-oma/src/decomposer.ts</code> (~150 行, 见 §3.3)</li>
+<li>新建 <code>baize-oma/src/routes/decompose.ts</code> (~50 行)</li>
+<li>修改 <code>baize-oma/src/server.ts</code> (注册新路由)</li>
+<li>新增 <code>baize-oma/src/__tests__/decomposer.test.ts</code> (单测)</li>
+<li>新增 <code>baize-oma/tests/integration/oma-decompose.test.mjs</code> (集成测试, 写真 baize-switch mock)</li>
+</ol>
+<p><strong>commit</strong>: <code>feat(oma): 写真 /oma.team.create HTTP 端点 (DAG 拆解)</code></p>
+
+<h2>5.3 阶段 3: 写真业务 (与 baize-chat 仓同步, M3 阶段)</h2>
+<p><strong>任务</strong> (本仓职责):</p>
+<ol>
+<li>写真 <code>baize-oma/src/scheduler.ts</code> 增强 (从 taskDag 自动转 omaTasks, 跑 runTasks)</li>
+<li>写真 <code>baize-oma/src/emitter.ts</code> 增强 (LLMEvent 流推 baize-chat)</li>
+<li>写真 baize-chat 仓的 <code>oma-adapter.ts</code> (调本仓 decompose + schedule)</li>
+<li>写真 baize-chat 仓的 <code>baize-switch-adapter.ts</code> (LLM 网关)</li>
+<li>e2e: baize-chat → baize-oma decompose → baize-oma schedule → baize-switch LLM → 推前端</li>
+</ol>
+<p><strong>commit</strong>: <code>feat(oma + chat): 端到端 DAG 拆解 + 拓扑调度 + LLM 流式推送</code></p>
+
+<h2>5.4 阶段 4: 优化 + 弃用进程内 OMADecomposer (2026-12 后)</h2>
+<p><strong>任务</strong>:</p>
+<ol>
+<li>OMA 稳定 6 个月 + 主控仓测试全部迁到 baize-oma HTTP 路径</li>
+<li>删 <code>baize-loop/src/loop/oma-client.ts</code> 的 OMADecomposer 类</li>
+<li>主控仓加 @deprecated 注释, 建议改用 baize-oma HTTP</li>
+</ol>
+<p><strong>commit</strong>: <code>refactor(loop): 删进程内 OMADecomposer, 改 HTTP 调 baize-oma decompose</code></p>
+
+<!-- ================================================================== -->
+<hr id="s6">
+<h1>6. 风险与边界</h1>
+
+<h2>6.1 风险</h2>
+<table>
+<thead><tr><th>风险</th><th>影响</th><th>缓解</th></tr></thead>
+<tbody>
+<tr><td>oma.decompose 失败率高 (LLM 拆解不准)</td><td>用户体验差, 任务分配乱</td><td>加 fallback: 拆解失败时直接走 quick 模式</td></tr>
+<tr><td>进程内 OMADecomposer 与 baize-oma decompose 不一致</td><td>测试混乱</td><td>写真 <code>/oma.team.create</code> 后, 给进程内类加 <code>@deprecated</code></td></tr>
+<tr><td>递归深拆爆炸 (maxDepth=3 拆出上千节点)</td><td>性能问题</td><td>加 hard limit (maxNodes=6, maxDepth=3)</td></tr>
+<tr><td>baize-switch 网关挂掉</td><td>oma.decompose 全部失败</td><td>加熔断 + 重试 + 报错降级</td></tr>
+</tbody>
+</table>
+
+<h2>6.2 边界</h2>
+<table>
+<thead><tr><th>属于 baize-oma</th><th>不属于 baize-oma</th></tr></thead>
+<tbody>
+<tr><td>收用户输入拆解成 DAG</td><td>拼 prompt (baize-chat 仓)</td></tr>
+<tr><td>调 LLM 拆解</td><td>渲染 widget (baize-chat 仓)</td></tr>
+<tr><td>归一化 OMADag</td><td>推前端 (baize-chat 仓)</td></tr>
+<tr><td>跑拓扑调度 (runTasks)</td><td>Profile 匹配 (baize-chat 仓)</td></tr>
+<tr><td>coordinator 综合</td><td>长期持久化 (主控 transcript-store)</td></tr>
+<tr><td>LLM 流式输出 (基础)</td><td>chat-message-* 事件命名 (baize-chat 仓主控)</td></tr>
+</tbody>
+</table>
+
+<h2>6.3 不写真的范围 (本期)</h2>
+<ul>
+<li>❌ 进程内 OMADecomposer 类删除 (2026-12 后)</li>
+<li>❌ baize-loop 主控仓 HTTP 端点修改 (<code>/api/v1/loop/decompose</code> 保留)</li>
+<li>❌ baize-chat 仓前端组件写真 (CH-29~CH-31, 4 白盒 widget 真实实现, 后续 phase)</li>
+<li>❌ baize-switch 网关修改 (LLM 拆解透明)</li>
+</ul>
+
+<!-- ================================================================== -->
+<hr id="s7">
+<h1>7. 决策记录</h1>
+
+<table>
+<thead><tr><th>日期</th><th>决策</th><th>来源</th></tr></thead>
+<tbody>
+<tr><td>2026-06-13</td><td>进程内 OMADecomposer 类创建 (Phase 2.1)</td><td><code>commit 697e80b1</code> + 后续</td></tr>
+<tr><td>2026-06-13</td><td>OMADecomposer 完善 (Phase 2.2-Hybrid, 加 agentRole + 递归深拆)</td><td><code>src/loop/oma-client.ts:60-200</code></td></tr>
+<tr><td>2026-06-22</td><td>OMADecomposer 改为 HTTP 调 baize-oma (Phase 3)</td><td><code>loop.ts:251</code> + <code>oh-chat.ts:12,25</code></td></tr>
+<tr><td>2026-06-23</td><td><strong>DAG 拆解集成方案 C (baize-oma) 拍板</strong></td><td>本专题文档 + baize-chat 架构专题 §4.7</td></tr>
+<tr><td>2026-06-23</td><td><strong>不写真独立 baize-decomposer 仓</strong></td><td>本专题文档 §2.3</td></tr>
+<tr><td>2026-06-23</td><td><strong>不集成 baize-chat 仓拆解</strong></td><td>本专题文档 §2.3</td></tr>
+<tr><td>2026-06-23</td><td><strong>进程内 OMADecomposer 类不删, 加 @deprecated</strong></td><td>本专题文档 §3.5</td></tr>
+</tbody>
+</table>
+
+<!-- ================================================================== -->
+<hr id="s8">
+<h1>8. 关联文档</h1>
+
+<h2>上游 (本专题文档引用)</h2>
+<ul>
+<li><code>baize-slot/baize-oma/plan/PLAN-UPGRADE-20260622.md</code> (本仓升级计划, 待修订加 §DAG 拆解整合章节)</li>
+<li><code>baize-slot/baize-oma/README.md</code> (本仓说明, 待更新 capability 表)</li>
+<li><code>baize-slot/baize-oma/slot.json</code> (本仓 slot 清单, 待加注释)</li>
+</ul>
+
+<h2>关联 (跨仓)</h2>
+<ul>
+<li><code>plan/refactor/slots-and-libs/chat/baize-chat-architecture-20260623.md</code> (baize-chat 架构专题, §4.7 DAG 拆解集成方案)</li>
+<li><code>baize-loop/src/loop/oma-client.ts</code> (进程内 OMADecomposer 类, 397 行, 当前被弃用)</li>
+<li><code>baize-loop/meta/services/api/intent-router.ts:75-103</code> (decomposeViaOma HTTP 委派函数)</li>
+<li><code>baize-loop/meta/services/api/loop.ts:178-200</code> (/api/v1/loop/decompose HTTP 端点)</li>
+</ul>
+
+<h2>测试与验证</h2>
+<ul>
+<li><code>baize-loop/meta/__tests__/oma-engine-extract-reasoning.test.ts</code> (进程内 OMADecomposer 测试, 待迁移)</li>
+<li><code>baize-loop/src/loop/oma-client.test.ts</code> (decompose 单元测试)</li>
+</ul>
+
+<hr>
+
+<div class="meta-card">
+<strong>📋 报告完成</strong> · 2026-06-23 20:30 UTC+8<br>
+<strong>md 源文件</strong>: <code>plan/refactor/slots-and-libs/chat/白泽baize-oma-DAG集成方案-20260623.md</code><br>
+<strong>html 文件</strong>: <code>plan/refactor/slots-and-libs/chat/白泽baize-oma-DAG集成方案-20260623.html</code><br>
+<strong>下一步</strong>: baize-oma 仓 PLAN-UPGRADE-20260622.md / README.md / slot.json 同步修订
+</div>
+
+<p style="text-align: center; color: #9ca3af; font-size: 0.85em; margin-top: 2rem;">
+<strong>关联文件</strong>:
+<code>白泽baize-oma-DAG集成方案-20260623.md</code> (md 源文件, 同目录) ·
+<code>白泽baize-chat-架构专题-20260623.html</code> (baize-chat 架构专题, §4.7 同步)
+</p>
+
+</body>
+</html>
