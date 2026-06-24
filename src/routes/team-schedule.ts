@@ -29,11 +29,11 @@
  *   response: { status, body: { success, output, tasks, tokens, agentResults? } }
  */
 
-import { Router, type Request, type Response } from "express";
+import { Router, type Request, type Response, type Router as ExpressRouter } from "express";
 import { getOmaEngine, isOmaReady } from "../oma-client.js";
 import type { AgentConfig, TeamConfig } from "@open-multi-agent/core";
 
-const router = Router();
+const router: ExpressRouter = Router();
 
 /** 统一错误响应. */
 function errorResp(res: Response, status: number, code: string, message: string): void {
@@ -98,7 +98,7 @@ router.post("/chat.agent.team.schedule", async (req: Request, res: Response) => 
       agentResultsObj[name] = {
         output: r.output,
         success: r.success,
-        tokens: r.tokenUsage,
+        tokens: { input: r.tokenUsage.input_tokens, output: r.tokenUsage.output_tokens },
       };
     }
 

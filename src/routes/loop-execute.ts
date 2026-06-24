@@ -50,13 +50,13 @@
  *   4. 若反思 = done 或达到 maxIterations, 结束
  */
 
-import { Router, type Request, type Response } from "express";
+import { Router, type Request, type Response, type Router as ExpressRouter } from "express";
 import { Decomposer } from "../decomposer/decomposer.js";
 import { getOmaEngine, isOmaReady } from "../oma-client.js";
 import { chatCompletionText } from "../llm/client.js";
 import type { AgentConfig, TeamConfig } from "@open-multi-agent/core";
 
-const router = Router();
+const router: ExpressRouter = Router();
 const decomposer = new Decomposer();
 
 /** 统一错误响应. */

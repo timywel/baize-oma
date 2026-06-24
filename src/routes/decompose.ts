@@ -30,12 +30,12 @@
  *   error:    { status, error: { code, message } }
  */
 
-import { Router, type Request, type Response } from "express";
+import { Router, type Request, type Response, type Router as ExpressRouter } from "express";
 import { Decomposer } from "../decomposer/decomposer.js";
 import type { AgentConfig } from "@open-multi-agent/core";
 import type { DecomposeOptions } from "../decomposer/types.js";
 
-const router = Router();
+const router: ExpressRouter = Router();
 const decomposer = new Decomposer();
 
 /** 统一错误响应. */
