@@ -3,53 +3,250 @@
 <head>
 <meta charset="UTF-8">
 <title>baize-oma 仓说明 (人类阅读版)</title>
+<style>
+:root {
+  --bg: #ffffff; --fg: #1f2937; --muted: #6b7280;
+  --green: #22c55e; --yellow: #eab308; --red: #ef4444; --blue: #3b82f6;
+  --gray-bg: #f9fafb; --border: #e5e7eb;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f172a; --fg: #e2e8f0; --muted: #94a3b8; --gray-bg: #1e293b; --border: #334155; }
+}
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--fg); max-width: 960px; margin: 32px auto; padding: 0 24px; line-height: 1.7; }
+h1, h2, h3 { color: var(--fg); }
+h1 { border-bottom: 2px solid var(--blue); padding-bottom: 8px; }
+h2 { margin-top: 32px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+code { background: var(--gray-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.92em; }
+pre { background: var(--gray-bg); padding: 12px 16px; border-radius: 6px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 16px 0; }
+th, td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+th { background: var(--gray-bg); font-weight: 600; }
+.badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; font-weight: 600; }
+.badge-green { background: var(--green); color: white; }
+.badge-yellow { background: var(--yellow); color: white; }
+.badge-red { background: var(--red); color: white; }
+.muted { color: var(--muted); font-size: 0.92em; }
+</style>
 </head>
 <body>
+
 <h1>baize-oma 仓说明 (人类阅读版)</h1>
 
-<p><strong>对应 .md 源文件</strong>: <a href="README.md">README.md</a> (AI 版已存在, 3.9KB)</p>
-<p><strong>状态</strong>: 占位骨架 (Phase 1 仓根文档补齐, 2026-06-23)</p>
+<p><strong>对应 .md 源文件</strong>: <a href="README.md">README.md</a> (AI 版, 6KB)</p>
+<p><strong>当前版本</strong>: <span class="badge badge-green">0.2.0</span> (2026-06-25, Phase 1-4 仓内部分完成)</p>
+<p><strong>类型</strong>: HTTP slot, 端口 20060 (可经 <code>BAIZE_OMA_PORT</code> 环境变量覆盖)</p>
 
-<h2>仓定位</h2>
-<p><strong>baize-oma</strong> 是 baize-loop 的 <strong>OMA Agent 调度子系统</strong> (http slot, 端口 20060), 提供任务分解 / Agent Team 调度 / 循环执行 3 个 capability, 配合 baize-switch 完成 LLM 调用, 配合 baize-chat 触发业务。</p>
+<h2>1. 仓定位</h2>
 
-<h2>对外能力 (3 capability)</h2>
+<p><strong>baize-oma</strong> 是 baize-loop 的 <strong>OMA Agent 调度子系统</strong>，独立 HTTP 进程。对外暴露 3 个 capability:</p>
+<ul>
+  <li><code>task.decompose</code> — 任务拆解为 DAG</li>
+  <li><code>chat.agent.team.schedule</code> — 多 Agent 团队协作</li>
+  <li><code>chat.loop.execute</code> — 循环执行 (decompose → execute → reflect)</li>
+</ul>
+
+<p>LLM 请求走 baize-switch (端口 20030, 路径 <code>/v1/messages</code>)。</p>
+
+<h2>2. 角色 (Role)</h2>
+
+<p><code>type: "http"</code> slot — 独立 Express 进程, 不传染协议给主控。</p>
+<p>baize-loop 主控通过 <a href="https://github.com/timywel/baize-loop/blob/main/meta/core/http-adapter.ts"><code>HttpSlotAdapter</code></a> 跨进程 HTTP 调用本服务。</p>
+
+<h2>3. 7 个 HTTP 端点 (Phase 4)</h2>
+
 <table>
-<thead><tr><th>能力</th><th>当前实现</th></tr></thead>
+<thead><tr><th>#</th><th>Method</th><th>Path</th><th>Capability</th><th>用途</th><th>状态</th></tr></thead>
 <tbody>
-<tr><td><code>task.decompose</code></td><td>入口已建, 真实 OMA 接入待 Phase 2</td></tr>
-<tr><td><code>chat.agent.team.schedule</code></td><td>同上</td></tr>
-<tr><td><code>chat.loop.execute</code></td><td>同上</td></tr>
+<tr><td>1</td><td>GET</td><td><code>/health</code></td><td>—</td><td>健康检查</td><td><span class="badge badge-green">✅</span></td></tr>
+<tr><td>2</td><td>GET</td><td><code>/manifest</code></td><td>—</td><td>返回 slot.json 内容</td><td><span class="badge badge-green">✅</span> Phase 4</td></tr>
+<tr><td>3</td><td>POST</td><td><code>/oma.team.create</code></td><td><code>task.decompose</code></td><td>任务拆解为 DAG</td><td><span class="badge badge-green">✅</span> Phase 2</td></tr>
+<tr><td>4</td><td>POST</td><td><code>/chat.agent.team.schedule</code></td><td><code>chat.agent.team.schedule</code></td><td>多 Agent Team 协作</td><td><span class="badge badge-green">✅</span> Phase 2</td></tr>
+<tr><td>5</td><td>POST</td><td><code>/chat.loop.execute</code></td><td><code>chat.loop.execute</code></td><td>循环执行 (decompose → execute → reflect)</td><td><span class="badge badge-green">✅</span> Phase 2</td></tr>
+<tr><td>6</td><td>POST</td><td><code>/dag.execute</code></td><td>(内部)</td><td>执行 DAG (拓扑排序 + 并行 + 重试)</td><td><span class="badge badge-green">✅</span> Phase 3</td></tr>
+<tr><td>7</td><td>POST</td><td><code>/dag.visualize</code></td><td>(内部)</td><td>DAG 可视化 (ASCII + Mermaid, 不执行)</td><td><span class="badge badge-green">✅</span> Phase 3</td></tr>
 </tbody>
 </table>
 
-<h2>实施度</h2>
+<h2>4. 安装 / 启动</h2>
+
+<pre><code># 安装依赖 (含 patch-package + 自动 apply 已有 patch)
+pnpm install
+
+# 开发模式 (热重启)
+pnpm dev
+
+# 生产模式
+pnpm build
+pnpm start
+
+# 类型检查 (无 emit)
+pnpm lint
+
+# 单元测试 + coverage
+pnpm test
+pnpm test:coverage
+
+# 烟测 (需先启动 server)
+pnpm dev &amp;  sleep 5 &amp;&amp; pnpm test:smoke
+</code></pre>
+
+<h3>环境变量</h3>
+
+<table>
+<thead><tr><th>变量</th><th>默认值</th><th>说明</th></tr></thead>
+<tbody>
+<tr><td><code>BAIZE_OMA_PORT</code></td><td><code>20060</code></td><td>HTTP server 端口</td></tr>
+<tr><td><code>BAIZE_SWITCH_URL</code></td><td><code>http://127.0.0.1:20030</code></td><td>baize-switch base URL (调 LLM)</td></tr>
+<tr><td><code>BAIZE_SWITCH_TIMEOUT_MS</code></td><td><code>30000</code></td><td>LLM 调用超时</td></tr>
+<tr><td><code>OMA_DEFAULT_MODEL</code></td><td><code>claude-opus-4-6</code></td><td>默认 LLM 模型</td></tr>
+<tr><td><code>OMA_MAX_CONCURRENCY</code></td><td><code>5</code></td><td>OMA agent pool 并发</td></tr>
+<tr><td><code>ANTHROPIC_API_KEY</code> / <code>OPENAI_API_KEY</code></td><td>—</td><td>LLM provider key (由 baize-switch 持有, 本服务不直连)</td></tr>
+</tbody>
+</table>
+
+<h2>5. 烟测示例 (curl)</h2>
+
+<p>假设 server 已启动在 <code>http://127.0.0.1:20060</code>。</p>
+
+<h3>健康检查</h3>
+<pre><code>curl -s http://127.0.0.1:20060/health
+# {"status":"healthy","last_check_at":"2026-06-25T00:00:00.000Z","latency_ms":0,"oma_version":"1.8.0"}
+</code></pre>
+
+<h3>Manifest (主控 HttpSlotAdapter 用)</h3>
+<pre><code>curl -s http://127.0.0.1:20060/manifest
+# {"id":"baize-oma","version":"0.2.0","type":"http",...}
+</code></pre>
+
+<h3>任务拆解 (DAG)</h3>
+<pre><code>curl -s -X POST http://127.0.0.1:20060/oma.team.create \
+  -H "content-type: application/json" \
+  -d '{
+    "name": "test-decompose",
+    "agents": [{"name": "a"}],
+    "input": "写个科幻剧本大纲",
+    "options": {"maxNodes": 5}
+  }'
+</code></pre>
+
+<h3>Agent Team 协作</h3>
+<pre><code>curl -s -X POST http://127.0.0.1:20060/chat.agent.team.schedule \
+  -H "content-type: application/json" \
+  -d '{
+    "team": {"name": "t", "agents": [{"name": "a"}]},
+    "goal": "分析用户问题"
+  }'
+</code></pre>
+
+<h3>DAG 执行 (直接传 DAG)</h3>
+<pre><code>curl -s -X POST http://127.0.0.1:20060/dag.execute \
+  -H "content-type: application/json" \
+  -d '{
+    "dag": {
+      "nodes": [
+        {"id":"a","task":"hello","agentRole":"generic","dependsOn":[],"retries":0,"timeoutMs":5000,"status":"pending","attempts":0}
+      ],
+      "edges": []
+    }
+  }'
+</code></pre>
+
+<h3>DAG 可视化 (纯可视化, 不执行)</h3>
+<pre><code>curl -s -X POST http://127.0.0.1:20060/dag.visualize \
+  -H "content-type: application/json" \
+  -d '{"dag":{"nodes":[{"id":"a","task":"hi","agentRole":"generic","dependsOn":[],"retries":0,"timeoutMs":5000,"status":"pending","attempts":0}],"edges":[]}}'
+# 返回 { ascii: "...", mermaid: "flowchart LR\n  a..." }
+</code></pre>
+
+<h2>6. 架构</h2>
+
+<pre><code>┌─────────────────────┐         HTTP (port 20060)         ┌──────────────────────────────────┐
+│ baize-loop (主控)   │ ────────────────────────────────> │ baize-oma (本仓, HTTP server)    │
+│ HttpSlotAdapter     │   POST /chat.agent.*              │   src/server.ts (Express)        │
+│                     │   GET  /health /manifest          │   src/routes/* (5 routers)       │
+└─────────────────────┘                                    │   src/decomposer/ (decompose)    │
+                                                            │   src/dag/ (executor + visualizer) │
+                                                            │   src/llm/client.ts (→ 20030)    │
+                                                            │   vendor/open-multi-agent/ (1.8.0)│
+                                                            └──────────────────────────────────┘
+</code></pre>
+
+<p>LLM 请求链: <strong>baize-oma → baize-switch (20030) → 上游 Anthropic/OpenAI provider</strong>。本服务不直连 LLM provider。</p>
+
+<h2>7. 实施度 (Phase 1-4 仓内)</h2>
+
+<table>
+<thead><tr><th>Phase</th><th>任务</th><th>状态</th></tr></thead>
+<tbody>
+<tr><td>Phase 1</td><td>仓根脚手架 + 文档补齐 + 旧 plan 归档</td><td><span class="badge badge-green">✅ 完成</span></td></tr>
+<tr><td>Phase 2</td><td>业务逻辑真接 OMA (decomposer + llm/client + 3 routes)</td><td><span class="badge badge-green">✅ 完成</span></td></tr>
+<tr><td>Phase 3</td><td>DAG 集成方案 (types + executor + visualizer + dag-execute 路由)</td><td><span class="badge badge-green">✅ 完成</span></td></tr>
+<tr><td>Phase 4 (仓内)</td><td>占位 stub 接入 (/manifest 修复) + curl 烟测 + coverage 门禁</td><td><span class="badge badge-green">✅ 完成</span></td></tr>
+<tr><td>Phase 4 (跨仓)</td><td>baize-switch / baize-chat 真实联调</td><td><span class="badge badge-yellow">⏳ 待跨仓就绪</span></td></tr>
+</tbody>
+</table>
+
+<h3>关键指标</h3>
+
 <ul>
-<li>✅ HTTP 服务骨架 (server.ts + routes × 5)</li>
-<li>✅ OMA vendored + patch-package 流程</li>
-<li>✅ 3 capability routes 入口</li>
-<li>✅ DAG 集成方案 (HTML 34KB, 已 commit)</li>
-<li>⚠️ 业务委派未真接 OMA (decomposer.ts 可能 mock)</li>
-<li>❌ 缺仓根 README.html / CLAUDE.md / INDEX.md (本 HTML 为新建)</li>
-<li>❌ vendor/open-multi-agent/ 升级演练缺失</li>
-<li>❌ 与 baize-switch / baize-chat 真实联调未做</li>
+  <li><strong>测试</strong>: 33/33 pass (7 decomposer + 15 routes + 11 dag executor)</li>
+  <li><strong>类型检查</strong>: 0 error (strict mode)</li>
+  <li><strong>Coverage</strong>: 64.15% 全局 / 88% dag executor / 95% loop-execute route</li>
+  <li><strong>烟测</strong>: 16/16 pass (7 routes + 4 校验用例 + 5 错误兜底)</li>
 </ul>
 
-<h2>关键文档</h2>
+<h2>8. vendored OMA + patch-package 工作流</h2>
+
+<p>OMA 源码 vendored 在 <code>vendor/open-multi-agent/</code>。修改 OMA 内部逻辑的标准流程:</p>
+
+<pre><code># 1. 修改 vendor/open-multi-agent/dist/... 里某个文件
+# 2. 生成 patch
+npx patch-package @open-multi-agent/core
+# → 生成 patches/@open-multi-agent+core+1.8.0.patch
+
+# 3. 上游升级
+npm install @open-multi-agent/core@1.9.0
+# → postinstall 自动重打 patch (如果冲突会报错, 手动 rebase)
+</code></pre>
+
+<p><strong>为什么不直接 fork OMA?</strong></p>
 <ul>
-<li><a href="CLAUDE.md">CLAUDE.md</a></li>
-<li><a href="INDEX.md">INDEX.md</a></li>
-<li><a href="plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md">plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md</a></li>
-<li><a href="plan/白泽baize-oma-DAG集成方案-20260623.html">plan/白泽baize-oma-DAG集成方案-20260623.html</a> (DAG 集成专题)</li>
+  <li>保留升级路径 (上游发版后 <code>npm update</code> 一行升级)</li>
+  <li>patch 文件是 diff，可读可审计</li>
+  <li>协议上仍只附 OMA 的 MIT LICENSE (vendored + patch 不构成衍生作品)</li>
 </ul>
 
-<h2>版本</h2>
+<h2>9. 关键文档</h2>
+
+<ul>
+  <li><a href="CLAUDE.md">CLAUDE.md</a> — 仓总览 + 用户核心规则 + 实施度</li>
+  <li><a href="INDEX.md">INDEX.md</a> — 仓索引 (源码 + 计划 + 测试 + 集成)</li>
+  <li><a href="plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md">plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md</a> — 主计划 (4 阶段)</li>
+  <li><a href="plan/进行中/update plan-BAIZE-OMA-task-4.md">plan/进行中/update plan-BAIZE-OMA-task-4.md</a> — Phase 4 滚动迭代</li>
+  <li><a href="tests/smoke/curl-test.sh">tests/smoke/curl-test.sh</a> — 烟测脚本</li>
+</ul>
+
+<h2>10. 协议 (License)</h2>
+
+<p>MIT — 详见 <a href="LICENSE">LICENSE</a>。Vendored <code>@open-multi-agent/core</code> 同样 MIT (上游)，详见 LICENSE 内 NOTICE 段。</p>
+
+<h2>11. 版本</h2>
+
 <table>
 <thead><tr><th>版本</th><th>时间</th><th>变更</th></tr></thead>
 <tbody>
-<tr><td>0.2.0</td><td>2026-06-22</td><td>Q5 capability 重命名, 加 DAG 拆解能力</td></tr>
-<tr><td>0.2.1</td><td>2026-06-23</td><td>Phase 1: 仓根文档补齐, ARCHIVED 旧 plan</td></tr>
+<tr><td>0.1.0</td><td>2026-06-22</td><td>初版 (5 routes stub + vendored OMA)</td></tr>
+<tr><td>0.2.0</td><td>2026-06-25</td><td>Phase 1-4 仓内完成: 业务真接 OMA + DAG 集成 + 烟测 + coverage + /manifest 路由修复</td></tr>
 </tbody>
 </table>
+
+<h2>12. 上游</h2>
+
+<ul>
+  <li>baize-loop: <a href="https://github.com/timywel/baize-loop">https://github.com/timywel/baize-loop</a></li>
+  <li>@open-multi-agent/core: <a href="https://github.com/open-multi-agent/open-multi-agent">https://github.com/open-multi-agent/open-multi-agent</a></li>
+</ul>
+
 </body>
 </html>
