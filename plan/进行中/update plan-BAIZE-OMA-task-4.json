@@ -1,0 +1,70 @@
+{
+  "planId": "PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000",
+  "version": "1.0",
+  "createdAt": "2026-06-24T00:30:00+08:00",
+  "updatedAt": "2026-06-24T00:30:00+08:00",
+  "iteration": 4,
+  "status": "pending",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md",
+  "phase": "Phase 4: 联调 + 端到端",
+  "estimatedDuration": "1 周",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-3.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-3.json",
+    "scope": "Phase 3: DAG 集成方案吸收",
+    "completedAt": "2026-06-24T09:16:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T4.1",
+      "title": "tests/integration/oma-decompose.test.mjs 跟 baize-switch 联调",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/tests/integration/oma-decompose.test.mjs",
+      "status": "not-started",
+      "linesEstimate": 100,
+      "notes": "真实调 baize-switch 20030, 验证 chat 请求链路"
+    },
+    {
+      "id": "T4.2",
+      "title": "tests/integration/oma-loop-execute.test.mjs 完整循环",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/tests/integration/oma-loop-execute.test.mjs",
+      "status": "not-started",
+      "linesEstimate": 150,
+      "notes": "decompose → execute → reflect 完整端到端"
+    },
+    {
+      "id": "T4.3",
+      "title": "curl 烟测 5 routes",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/tests/smoke/curl-test.sh",
+      "status": "not-started",
+      "linesEstimate": 50,
+      "notes": "5 routes × curl 烟测, 集成到 CI"
+    },
+    {
+      "id": "T4.4",
+      "title": "baize-chat → oma → switch 端到端",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/tests/integration/baize-chat-e2e.test.mjs",
+      "status": "not-started",
+      "linesEstimate": 150,
+      "notes": "三仓联调 (chat 触发 oma, oma 调 switch, switch 返 SSE)"
+    },
+    {
+      "id": "T4.5",
+      "title": "README.html 写联调说明",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/README.html",
+      "status": "not-started",
+      "linesEstimate": 50,
+      "notes": "补全人类版仓说明, 写联调步骤 + curl 示例"
+    },
+    {
+      "id": "T4.6",
+      "title": "git commit + tag v0.2.0",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/.git/",
+      "status": "not-started",
+      "linesEstimate": 0,
+      "notes": "tag baize-oma-v0.2.0 (Phase 1-4 全部完成)"
+    }
+  ],
+  "nextIteration": null
+}

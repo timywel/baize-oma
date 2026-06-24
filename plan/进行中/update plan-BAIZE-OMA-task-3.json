@@ -2,14 +2,16 @@
   "planId": "PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000",
   "version": "1.0",
   "createdAt": "2026-06-24T08:59:30+08:00",
-  "updatedAt": "2026-06-24T08:59:30+08:00",
+  "updatedAt": "2026-06-24T09:16:00+08:00",
   "iteration": 3,
-  "status": "pending",
+  "status": "completed",
   "owner": "timywel",
   "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
   "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md",
   "phase": "Phase 3: DAG 集成方案吸收",
   "estimatedDuration": "1.5 周",
+  "actualDuration": "1 session (~15 min wall clock)",
+  "completedAt": "2026-06-24T09:16:00+08:00",
   "previousIteration": {
     "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-2.md",
     "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-2.json",
@@ -21,65 +23,106 @@
       "id": "T3.1",
       "title": "读 白泽baize-oma-DAG集成方案-20260623.md 整理实施步骤",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/白泽baize-oma-DAG集成方案-20260623.md",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:09:00+08:00",
       "linesEstimate": 0,
-      "notes": "读 23.6KB 详细方案 + 34.4KB 人类版, 提取实施步骤"
+      "linesActual": 0,
+      "commit": "—",
+      "notes": "读完 23.6KB MD + 34.4KB HTML, 关键决策: 1) 拆解能力全在 baize-oma 仓 (方案 C 拍板); 2) HTTP /oma.team.create 视为现有 capability 扩展; 3) 进程内 OMADecomposer 不删, 走 HTTP 委派"
     },
     {
       "id": "T3.2",
       "title": "src/dag/types.ts (DAGNode / DAG / DAGExecutionResult)",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/types.ts",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:10:00+08:00",
       "linesEstimate": 100,
-      "notes": "DAG 核心类型 + 状态机枚举 + 执行选项"
+      "linesActual": 115,
+      "commit": "866ca00",
+      "notes": "DAGNode (status/retries/timeoutMs/attempts), DAG, DAGExecutionOptions, DAGExecutionResult, DAGValidationError + DAGNodeExecutor 回调类型"
     },
     {
       "id": "T3.3",
       "title": "src/dag/executor.ts (拓扑排序 + 并行 + 重试)",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/executor.ts",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:11:00+08:00",
       "linesEstimate": 200,
-      "notes": "Kahn 算法检测循环 + Promise.all 分层并行 + 节点失败重试 + failFast"
+      "linesActual": 354,
+      "commit": "f3004d9",
+      "notes": "Kahn's algorithm 拓扑分层 + Semaphore 限流 (Promise.all 分层并行) + runNodeWithRetry (指数退避 200ms * 2^n) + 超时保护 + 默认走 OMA runAgent"
     },
     {
       "id": "T3.4",
       "title": "src/dag/visualizer.ts (ASCII / Mermaid)",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/visualizer.ts",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:11:30+08:00",
       "linesEstimate": 100,
-      "notes": "DAG 渲染, 支持 ASCII (debug) + Mermaid (markdown)"
+      "linesActual": 98,
+      "commit": "f23ce70",
+      "notes": "toAscii 按拓扑层输出 (例: [a, b] → [c]); toMermaid 输出 flowchart LR + 节点标签 (title + agentRole) + 边"
     },
     {
       "id": "T3.5",
       "title": "src/decomposer/ 改造为输出 DAG",
-      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/decomposer/",
-      "status": "not-started",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/decomposer/decomposer.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:12:00+08:00",
       "linesEstimate": 150,
-      "notes": "兼容 Phase 2 的 OMADag (额外补 retries/timeoutMs/status/attempts 字段)"
+      "linesActual": 45,
+      "commit": "a6626e7",
+      "notes": "保留 Phase 2 的 decompose() 返回 OMADag (现有 /oma.team.create 不变), 新增 decomposeIntoDag() 把 OMADag 包成 DAG (retries/timeoutMs/status/attempts 默认值), 22 个旧测试零修改通过"
     },
     {
       "id": "T3.6",
       "title": "src/routes/dag-execute.ts 新建",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/routes/dag-execute.ts",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:13:30+08:00",
       "linesEstimate": 200,
-      "notes": "POST /dag.execute, 走 dagExecutor.execute(dag, options), 校验 + 错误处理"
+      "linesActual": 215,
+      "commit": "56bd561",
+      "notes": "POST /dag.execute (走 executor 真执行, 返 ascii + mermaid), POST /dag.visualize (纯可视化 debug); server.ts 注册新路由; 400 INVALID_REQUEST / 400 CYCLE_DETECTED / 500 DAG_EXECUTE_FAILED 错误码"
     },
     {
       "id": "T3.7",
       "title": "src/__tests__/dag.test.ts 集成测试",
       "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/__tests__/dag.test.ts",
-      "status": "not-started",
+      "status": "completed",
+      "completedAt": "2026-06-24T09:15:00+08:00",
       "linesEstimate": 250,
-      "notes": "6+ case: 简单 DAG / 并行执行 / 失败重试 / 循环依赖检测 / maxConcurrency / 可视化"
+      "linesActual": 277,
+      "commit": "3865330",
+      "notes": "11 case: 1) 简单 DAG 顺序 2) 并行 DAG 时序 3) 节点失败 + retries=2 4) 循环依赖检测 5) 缺失依赖检测 6) maxConcurrency=2 限流 7) failFast=true 下游 skipped 8) failFast=false 旁支 completed 9) ASCII 可视化 10) Mermaid 可视化 11) 空 DAG 兜底"
     }
   ],
+  "metrics": {
+    "typecheckErrors": 0,
+    "testsPassed": 33,
+    "testsFailed": 0,
+    "testsAdded": 11,
+    "commits": 5,
+    "linesAdded": 1101,
+    "filesCreated": 4,
+    "filesModified": 2
+  },
+  "implementationNotes": {
+    "executorCycleDetection": "循环依赖检测原本只在 topologicalLayers 内部 (visited.size !== nodes.length 触发); validateDag 单独调 topologicalLayers 来 throw DAGValidationError, 让 route 层在 execute 前就能拿到 CYCLE_DETECTED",
+    "executorFailFastSemantics": "failFast 只控制 '任一节点失败后是否提前 break 整个执行'; 失败的祖先对下游节点的 skip 行为与 failFast 无关 (失败的祖先无法恢复, 必须 skip). 这是 case 8 发现的语义 bug, 已修",
+    "executorBackpressure": "Semaphore 用 promise queue 实现, 拿不到 permit 的任务挂起, 释放时唤醒. 比 Promise.all + chunk 更易复用",
+    "executorRetry": "retries=0 → 1 次尝试; retries=2 → 3 次尝试 (1 + retries). 指数退避 200ms * 2^(attempt-1), 第 1/2/3 次退避 200/400/800ms",
+    "decomposerBackwardCompat": "decompose() 仍走 Phase 2 链路, 现有 /oma.team.create 调用零修改; decomposeIntoDag() 在其上层包一层, 注入 retries/timeoutMs/status/attempts"
+  },
   "nextIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-4.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-4.json",
     "phase": "Phase 4: 联调 + 端到端",
     "expectedFocus": [
       "tests/integration/oma-decompose.test.mjs 跟 baize-switch 联调",
       "tests/integration/oma-loop-execute.test.mjs 完整循环",
-      "curl 烟测 5 routes",
+      "tests/integration/oma-dag-execute.test.mjs 新增 (Phase 3 DAG 联调)",
+      "curl 烟测 7 routes (含新加的 /dag.execute / /dag.visualize)",
       "baize-chat → oma → switch 端到端",
       "README.html 写联调说明",
       "git commit + tag v0.2.0"
