@@ -35,7 +35,9 @@
  */
 
 import express, { type Request, type Response, type NextFunction } from "express";
-import { initOmaEngine, isOmaReady } from "./oma-client.js";
+import { initOmaEngine } from "./oma-client.js";
+import healthRouter from "./routes/health.js";
+import manifestRouter from "./routes/manifest.js";
 import decomposeRouter from "./routes/decompose.js";
 import teamScheduleRouter from "./routes/team-schedule.js";
 import loopExecuteRouter from "./routes/loop-execute.js";
@@ -46,17 +48,9 @@ const PORT = Number(process.env.BAIZE_OMA_PORT ?? 20060);
 const app = express();
 app.use(express.json({ limit: "4mb" }));
 
-/** 健康检查 */
-app.get("/health", (_req: Request, res: Response) => {
-  res.json({
-    status: isOmaReady() ? "healthy" : "degraded",
-    last_check_at: new Date().toISOString(),
-    latency_ms: 0,
-    oma_version: "1.8.0",
-  });
-});
-
-/** 能力路由 (Phase 2 拆到 src/routes/*; Phase 3 加 dag-execute) */
+/** 能力路由 (Phase 4: 把 /health 和 /manifest 也拆成 router, 占位 stub 接入) */
+app.use(healthRouter);
+app.use(manifestRouter);
 app.use(decomposeRouter);
 app.use(teamScheduleRouter);
 app.use(loopExecuteRouter);
