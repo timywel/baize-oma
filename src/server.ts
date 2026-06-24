@@ -25,30 +25,20 @@
  * 默认端口 20060 (避开 dspy 20025 / oh-backend 20032 / dspy-slot 20040 / harness-slot 20050).
  *
  * 路由:
- *   GET  /health                  → 健康检查
- *   GET  /manifest                → slot.json 内容 (主控可拉取验证)
- *   POST /chat.agent.team.schedule → 多 agent team 协作
- *   POST /chat.loop.execute       → 通用 loop 执行
+ *   GET  /health                       → 健康检查
+ *   GET  /manifest                     → slot.json 内容 (主控可拉取验证)
+ *   POST /oma.team.create              → task.decompose (拆解为 DAG)
+ *   POST /chat.agent.team.schedule     → chat.agent.team.schedule (多 agent team 协作)
+ *   POST /chat.loop.execute            → chat.loop.execute (decompose → execute → reflect)
  */
 
 import express, { type Request, type Response, type NextFunction } from "express";
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
-import { dirname, join } from "node:path";
 import { initOmaEngine, isOmaReady } from "./oma-client.js";
-import { handleTeam, handleLoop } from "./oma-adapter.js";
+import decomposeRouter from "./routes/decompose.js";
+import teamScheduleRouter from "./routes/team-schedule.js";
+import loopExecuteRouter from "./routes/loop-execute.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const SLOT_JSON_PATH = join(__dirname, "..", "slot.json");
 const PORT = Number(process.env.BAIZE_OMA_PORT ?? 20060);
-
-function loadManifest() {
-  try {
-    return JSON.parse(readFileSync(SLOT_JSON_PATH, "utf-8"));
-  } catch {
-    return { id: "baize-oma", error: "manifest not loadable" };
-  }
-}
 
 const app = express();
 app.use(express.json({ limit: "4mb" }));
@@ -63,14 +53,10 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-/** slot.json 透出 */
-app.get("/manifest", (_req: Request, res: Response) => {
-  res.json(loadManifest());
-});
-
-/** 能力路由 */
-app.post("/chat.agent.team.schedule", handleTeam);
-app.post("/chat.loop.execute", handleLoop);
+/** 能力路由 (Phase 2 拆到 src/routes/*) */
+app.use(decomposeRouter);
+app.use(teamScheduleRouter);
+app.use(loopExecuteRouter);
 
 /** 404 兜底 */
 app.use((req: Request, res: Response) => {
@@ -86,5 +72,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 initOmaEngine();
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: chat.agent.team.schedule / chat.loop.execute)`);
+  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: task.decompose / chat.agent.team.schedule / chat.loop.execute)`);
 });
