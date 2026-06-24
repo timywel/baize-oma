@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>baize-oma 仓说明 (人类阅读版)</title>
+</head>
+<body>
+<h1>baize-oma 仓说明 (人类阅读版)</h1>
+
+<p><strong>对应 .md 源文件</strong>: <a href="README.md">README.md</a> (AI 版已存在, 3.9KB)</p>
+<p><strong>状态</strong>: 占位骨架 (Phase 1 仓根文档补齐, 2026-06-23)</p>
+
+<h2>仓定位</h2>
+<p><strong>baize-oma</strong> 是 baize-loop 的 <strong>OMA Agent 调度子系统</strong> (http slot, 端口 20060), 提供任务分解 / Agent Team 调度 / 循环执行 3 个 capability, 配合 baize-switch 完成 LLM 调用, 配合 baize-chat 触发业务。</p>
+
+<h2>对外能力 (3 capability)</h2>
+<table>
+<thead><tr><th>能力</th><th>当前实现</th></tr></thead>
+<tbody>
+<tr><td><code>task.decompose</code></td><td>入口已建, 真实 OMA 接入待 Phase 2</td></tr>
+<tr><td><code>chat.agent.team.schedule</code></td><td>同上</td></tr>
+<tr><td><code>chat.loop.execute</code></td><td>同上</td></tr>
+</tbody>
+</table>
+
+<h2>实施度</h2>
+<ul>
+<li>✅ HTTP 服务骨架 (server.ts + routes × 5)</li>
+<li>✅ OMA vendored + patch-package 流程</li>
+<li>✅ 3 capability routes 入口</li>
+<li>✅ DAG 集成方案 (HTML 34KB, 已 commit)</li>
+<li>⚠️ 业务委派未真接 OMA (decomposer.ts 可能 mock)</li>
+<li>❌ 缺仓根 README.html / CLAUDE.md / INDEX.md (本 HTML 为新建)</li>
+<li>❌ vendor/open-multi-agent/ 升级演练缺失</li>
+<li>❌ 与 baize-switch / baize-chat 真实联调未做</li>
+</ul>
+
+<h2>关键文档</h2>
+<ul>
+<li><a href="CLAUDE.md">CLAUDE.md</a></li>
+<li><a href="INDEX.md">INDEX.md</a></li>
+<li><a href="plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md">plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md</a></li>
+<li><a href="plan/白泽baize-oma-DAG集成方案-20260623.html">plan/白泽baize-oma-DAG集成方案-20260623.html</a> (DAG 集成专题)</li>
+</ul>
+
+<h2>版本</h2>
+<table>
+<thead><tr><th>版本</th><th>时间</th><th>变更</th></tr></thead>
+<tbody>
+<tr><td>0.2.0</td><td>2026-06-22</td><td>Q5 capability 重命名, 加 DAG 拆解能力</td></tr>
+<tr><td>0.2.1</td><td>2026-06-23</td><td>Phase 1: 仓根文档补齐, ARCHIVED 旧 plan</td></tr>
+</tbody>
+</table>
+</body>
+</html>

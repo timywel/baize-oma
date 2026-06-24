@@ -2,6 +2,8 @@
 
 Baize slot adapter for [`@open-multi-agent/core`](https://www.npmjs.com/package/@open-multi-agent/core) — wraps the OpenMultiAgent framework as a [BaizeSlot](https://github.com/timywel/baize-loop/blob/main/meta/slot-api/types.ts) HTTP service.
 
+**2026-06-23 更新**: 本仓集成 DAG 任务拆解能力 (方案 C 拍板), 取代主控进程内 `OMADecomposer` 类. 详见 `plan/refactor/slots-and-libs/chat/白泽baize-oma-DAG集成方案-20260623.html`.
+
 ## 角色 (Role)
 
 `type: "http"` slot — runs as a standalone HTTP server on port `20060` (default, override via `BAIZE_OMA_PORT`).
@@ -10,10 +12,11 @@ baize-loop 主控通过 [HttpSlotAdapter](https://github.com/timywel/baize-loop/
 
 ## Capabilities
 
-| Capability | HTTP Route | 对应 OMA API |
-|---|---|---|
-| `chat.agent.team.schedule` | `POST /chat.agent.team.schedule` | `OpenMultiAgent.runTeam()` |
-| `chat.loop.execute` | `POST /chat.loop.execute` | `OpenMultiAgent.runAgent()` (loop wrapper) |
+| Capability | HTTP Route | 对应 OMA API | 状态 |
+|---|---|---|---|
+| `chat.agent.team.schedule` | `POST /chat.agent.team.schedule` | `OpenMultiAgent.runTeam()` | ✅ 已实现 |
+| `chat.loop.execute` | `POST /chat.loop.execute` | `OpenMultiAgent.runAgent()` (loop wrapper) | ✅ 已实现 |
+| `task.decompose` 🆕 | `POST /oma.team.create` | `OpenMultiAgent.createTeam()` + LLM 拆解 | 🆕 2026-06-23 拍板, M3 阶段 1 周 |
 
 健康检查 + manifest:
 - `GET /health` → `{status, last_check_at, latency_ms, oma_version}`
