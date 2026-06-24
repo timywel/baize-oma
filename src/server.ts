@@ -30,6 +30,8 @@
  *   POST /oma.team.create              → task.decompose (拆解为 DAG)
  *   POST /chat.agent.team.schedule     → chat.agent.team.schedule (多 agent team 协作)
  *   POST /chat.loop.execute            → chat.loop.execute (decompose → execute → reflect)
+ *   POST /dag.execute                  → task.dag.execute (Phase 3: 输入高层目标或 DAG, 拓扑执行)
+ *   POST /dag.visualize                → task.dag.visualize (Phase 3: 纯可视化, debug 用)
  */
 
 import express, { type Request, type Response, type NextFunction } from "express";
@@ -37,6 +39,7 @@ import { initOmaEngine, isOmaReady } from "./oma-client.js";
 import decomposeRouter from "./routes/decompose.js";
 import teamScheduleRouter from "./routes/team-schedule.js";
 import loopExecuteRouter from "./routes/loop-execute.js";
+import dagExecuteRouter from "./routes/dag-execute.js";
 
 const PORT = Number(process.env.BAIZE_OMA_PORT ?? 20060);
 
@@ -53,10 +56,11 @@ app.get("/health", (_req: Request, res: Response) => {
   });
 });
 
-/** 能力路由 (Phase 2 拆到 src/routes/*) */
+/** 能力路由 (Phase 2 拆到 src/routes/*; Phase 3 加 dag-execute) */
 app.use(decomposeRouter);
 app.use(teamScheduleRouter);
 app.use(loopExecuteRouter);
+app.use(dagExecuteRouter);
 
 /** 404 兜底 */
 app.use((req: Request, res: Response) => {
@@ -72,5 +76,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 initOmaEngine();
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
-  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: task.decompose / chat.agent.team.schedule / chat.loop.execute)`);
+  console.log(`[baize-oma] listening on http://127.0.0.1:${PORT} (capabilities: task.decompose / chat.agent.team.schedule / chat.loop.execute / task.dag.execute / task.dag.visualize)`);
 });

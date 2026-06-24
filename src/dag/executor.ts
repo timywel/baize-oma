@@ -49,6 +49,9 @@ import {
   type DAGNodeResult,
 } from "./types.js";
 
+// re-export 让 route 层可以 instanceof 校验
+export { DAGValidationError };
+
 const DEFAULT_MAX_CONCURRENCY = 5;
 const DEFAULT_RETRIES = 1;
 const DEFAULT_TIMEOUT_MS = 30_000;
