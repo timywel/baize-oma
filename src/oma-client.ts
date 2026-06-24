@@ -49,6 +49,13 @@ export function isOmaReady(): boolean {
   return _engine !== null;
 }
 
+/** 拿 OMA 引擎单例. 未初始化时自动初始化. (Phase 2 decomposer / routes 复用) */
+export function getOmaEngine(): OpenMultiAgent {
+  if (!_engine) initOmaEngine();
+  // 上面已保证 _engine 非空
+  return _engine as OpenMultiAgent;
+}
+
 /**
  * 调度单个 agent 跑一个 prompt.
  * 对应 capability: chat.agent.schedule
