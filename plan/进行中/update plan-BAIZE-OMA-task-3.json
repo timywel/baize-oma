@@ -1,0 +1,88 @@
+{
+  "planId": "PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000",
+  "version": "1.0",
+  "createdAt": "2026-06-24T08:59:30+08:00",
+  "updatedAt": "2026-06-24T08:59:30+08:00",
+  "iteration": 3,
+  "status": "pending",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md",
+  "phase": "Phase 3: DAG 集成方案吸收",
+  "estimatedDuration": "1.5 周",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-2.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-2.json",
+    "scope": "Phase 2: 业务逻辑真接 OMA",
+    "completedAt": "2026-06-24T08:59:30+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T3.1",
+      "title": "读 白泽baize-oma-DAG集成方案-20260623.md 整理实施步骤",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/白泽baize-oma-DAG集成方案-20260623.md",
+      "status": "not-started",
+      "linesEstimate": 0,
+      "notes": "读 23.6KB 详细方案 + 34.4KB 人类版, 提取实施步骤"
+    },
+    {
+      "id": "T3.2",
+      "title": "src/dag/types.ts (DAGNode / DAG / DAGExecutionResult)",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/types.ts",
+      "status": "not-started",
+      "linesEstimate": 100,
+      "notes": "DAG 核心类型 + 状态机枚举 + 执行选项"
+    },
+    {
+      "id": "T3.3",
+      "title": "src/dag/executor.ts (拓扑排序 + 并行 + 重试)",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/executor.ts",
+      "status": "not-started",
+      "linesEstimate": 200,
+      "notes": "Kahn 算法检测循环 + Promise.all 分层并行 + 节点失败重试 + failFast"
+    },
+    {
+      "id": "T3.4",
+      "title": "src/dag/visualizer.ts (ASCII / Mermaid)",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/dag/visualizer.ts",
+      "status": "not-started",
+      "linesEstimate": 100,
+      "notes": "DAG 渲染, 支持 ASCII (debug) + Mermaid (markdown)"
+    },
+    {
+      "id": "T3.5",
+      "title": "src/decomposer/ 改造为输出 DAG",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/decomposer/",
+      "status": "not-started",
+      "linesEstimate": 150,
+      "notes": "兼容 Phase 2 的 OMADag (额外补 retries/timeoutMs/status/attempts 字段)"
+    },
+    {
+      "id": "T3.6",
+      "title": "src/routes/dag-execute.ts 新建",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/routes/dag-execute.ts",
+      "status": "not-started",
+      "linesEstimate": 200,
+      "notes": "POST /dag.execute, 走 dagExecutor.execute(dag, options), 校验 + 错误处理"
+    },
+    {
+      "id": "T3.7",
+      "title": "src/__tests__/dag.test.ts 集成测试",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/__tests__/dag.test.ts",
+      "status": "not-started",
+      "linesEstimate": 250,
+      "notes": "6+ case: 简单 DAG / 并行执行 / 失败重试 / 循环依赖检测 / maxConcurrency / 可视化"
+    }
+  ],
+  "nextIteration": {
+    "phase": "Phase 4: 联调 + 端到端",
+    "expectedFocus": [
+      "tests/integration/oma-decompose.test.mjs 跟 baize-switch 联调",
+      "tests/integration/oma-loop-execute.test.mjs 完整循环",
+      "curl 烟测 5 routes",
+      "baize-chat → oma → switch 端到端",
+      "README.html 写联调说明",
+      "git commit + tag v0.2.0"
+    ]
+  }
+}

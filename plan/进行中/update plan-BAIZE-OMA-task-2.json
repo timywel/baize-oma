@@ -1,0 +1,129 @@
+{
+  "planId": "PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000",
+  "version": "1.0",
+  "createdAt": "2026-06-24T00:30:00+08:00",
+  "updatedAt": "2026-06-24T08:59:30+08:00",
+  "iteration": 2,
+  "status": "completed",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md",
+  "phase": "Phase 2: 业务逻辑真接 OMA",
+  "estimatedDuration": "2 周",
+  "actualDuration": "1 session (~30 min wall clock)",
+  "completedAt": "2026-06-24T08:59:30+08:00",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-1.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-1.json",
+    "scope": "Phase 1: 仓根脚手架 + 文档补齐",
+    "completedAt": "2026-06-24T00:30:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T2.1",
+      "title": "src/decomposer/ 真接 vendor/open-multi-agent/ (去掉 mock)",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/decomposer/",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:30:00+08:00",
+      "linesActual": 187,
+      "linesEstimate": 200,
+      "commit": "ff14704",
+      "notes": "audit vendor/OpenMultiAgent.runTeam(planOnly=true) 接口, 替换 mock 为真实 OMA 引擎调用 + 导出 getOmaEngine() 单例 getter"
+    },
+    {
+      "id": "T2.2",
+      "title": "新建 src/llm/client.ts (调 baize-switch 20030)",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/llm/client.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:35:00+08:00",
+      "linesActual": 200,
+      "linesEstimate": 150,
+      "commit": "0c0f4f1",
+      "notes": "fetch /v1/messages + /v1/embeddings, baseUrl=http://127.0.0.1:20030, 默认 30s 超时 + 3 次指数退避重试, 4xx 不重试"
+    },
+    {
+      "id": "T2.3",
+      "title": "src/routes/decompose.ts 真调 decomposer",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/routes/decompose.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:40:00+08:00",
+      "linesActual": 82,
+      "linesEstimate": 100,
+      "commit": "f59e370",
+      "notes": "ExpressRouter 显式标注避免 dts 推断问题, 400/500 错误码规范化"
+    },
+    {
+      "id": "T2.4",
+      "title": "src/routes/team-schedule.ts 真调 team-schedule",
+      "scope": "/home/timywel/AI_Product/baize-oma/src/routes/team-schedule.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:45:00+08:00",
+      "linesActual": 121,
+      "linesEstimate": 150,
+      "commit": "2106d5c",
+      "notes": "走真 OMA runTeam(), 503 ENGINE_NOT_READY 兜底, agentResults Map 序列化为对象"
+    },
+    {
+      "id": "T2.5",
+      "title": "src/routes/loop-execute.ts 真跑循环",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/routes/loop-execute.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:50:00+08:00",
+      "linesActual": 215,
+      "linesEstimate": 200,
+      "commit": "fb826d2",
+      "notes": "decompose → runTeam → reflect 三段循环, 反思走 chatCompletionText 调 baize-switch 20030, maxIterations 1-10 边界保护, server.ts 改用 3 个 router"
+    },
+    {
+      "id": "T2.5-fix",
+      "title": "typecheck 修复: 显式标注 ExpressRouter",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/routes/*",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:51:00+08:00",
+      "linesActual": 0,
+      "linesEstimate": 0,
+      "commit": "8101dfb",
+      "notes": "tsc --noEmit 在 declaration:true 下 Router 推断失败, 显式 import type Router as ExpressRouter 解决"
+    },
+    {
+      "id": "T2.6",
+      "title": "src/__tests__/decomposer.test.ts 加真实用例",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/__tests__/decomposer.test.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:55:00+08:00",
+      "linesActual": 187,
+      "linesEstimate": 200,
+      "commit": "b8f3ffc",
+      "notes": "7 个 case: 空 input / 正常拆解 / agents 兜底 / maxNodes 截断 / 空 task 抛错 / assignee 角色映射 / meta 字段格式"
+    },
+    {
+      "id": "T2.7",
+      "title": "src/__tests__/routes.test.ts 补覆盖率",
+      "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/src/__tests__/routes.test.ts",
+      "status": "completed",
+      "completedAt": "2026-06-24T08:59:00+08:00",
+      "linesActual": 279,
+      "linesEstimate": 300,
+      "commit": "10eb99d",
+      "notes": "15 个 case (3 routes × 5 case), 覆盖成功路径 / 400 校验 / 503 引擎未就绪 / 500 内部错误 / 循环 done/未 done 两种路径"
+    }
+  ],
+  "metrics": {
+    "typecheckErrors": 0,
+    "testsPassed": 22,
+    "testsFailed": 0,
+    "commits": 7
+  },
+  "nextIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-3.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-3.json",
+    "phase": "Phase 3: DAG 集成方案吸收",
+    "expectedFocus": [
+      "按 白泽baize-oma-DAG集成方案-20260623.md 实施 DAG",
+      "src/dag/ 子目录新建 (types.ts + executor.ts + visualizer.ts)",
+      "src/decomposer/ 改造为输出 DAG 而非 flat task list",
+      "src/routes/dag-execute.ts 新建",
+      "集成测试 (DAG 节点失败重试)"
+    ]
+  }
+}
