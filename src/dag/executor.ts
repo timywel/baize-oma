@@ -137,7 +137,7 @@ function topologicalLayers(dag: DAG): DAGNode[][] {
   return layers;
 }
 
-/** 校验 DAG 形态: 至少 1 节点 + 所有依赖在 nodes 中. */
+/** 校验 DAG 形态: 至少 1 节点 + 所有依赖在 nodes 中 + 无循环依赖. */
 export function validateDag(dag: DAG): void {
   if (!dag.nodes || dag.nodes.length === 0) {
     throw new DAGValidationError("DAG 节点数必须 >= 1", "EMPTY_DAG");
@@ -156,6 +156,13 @@ export function validateDag(dag: DAG): void {
     if (!node.task) {
       throw new DAGValidationError(`节点 ${node.id} 缺 task`, "INVALID_NODE");
     }
+  }
+  // 循环依赖检测 (复用 topologicalLayers 的副作用, 内部有 visited.size 校验)
+  try {
+    topologicalLayers(dag);
+  } catch (err) {
+    if (err instanceof DAGValidationError) throw err;
+    throw err;
   }
 }
 
@@ -279,12 +286,11 @@ export async function executeDag(
   const sem = new Semaphore(maxConcurrency);
 
   for (const layer of layers) {
-    // 决定本层要执行的节点 (上游有失败且 failFast=true → 跳过)
-    const toRun = layer.filter((n) => {
-      if (!failFast || failedAncestors.size === 0) return true;
-      // 任何依赖项在 failedAncestors → 跳过
-      return !n.dependsOn.some((d) => failedAncestors.has(d));
-    });
+    // 决定本层要执行的节点:
+    //  - 任何依赖项在 failedAncestors → 必须跳过 (没上游结果)
+    //  - 跳过 (skip) 与 failFast 无关: 失败的祖先无法恢复, 不论 failFast 都跳过
+    //  - failFast 仅控制"任一节点失败后是否提前 break 整个执行"
+    const toRun = layer.filter((n) => !n.dependsOn.some((d) => failedAncestors.has(d)));
 
     // 本层被跳过的节点
     for (const n of layer) {
