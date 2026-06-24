@@ -24,6 +24,8 @@
  * 真接 OMA 引擎 (`vendor/open-multi-agent/`) 的任务拆解器.
  * Phase 2 落地: 去掉 mock, 通过 `OpenMultiAgent.runTeam({ planOnly: true })`
  * 走 coordinator LLM 拆解, 拿到 Task[] 后转成本仓 OMADag.
+ * Phase 3 扩展: 新增 `decomposeIntoDag` 走 Phase 2 的 OMADag → 升级为可执行 DAG
+ *   (DAGNode: retries / timeoutMs / status / attempts 默认值 + OMANode 字段)
  *
  * 数据流:
  *   input string + agents[] + options
@@ -31,6 +33,7 @@
  *       → coordinator LLM 调 baize-switch 拆解
  *     → TeamRunResult.tasks: TaskExecutionRecord[]
  *       → 映射成 OMADag { nodes, edges }
+ *       → Phase 3: 升级为 DAG (DAGNode + 默认执行参数)
  *
  * 注: 不直接动 vendor 内部, 走 patch-package 流程 (CLAUDE.md §Never).
  */
@@ -39,6 +42,7 @@ import { randomUUID } from "node:crypto";
 import { getOmaEngine } from "../oma-client.js";
 import type { AgentConfig, TaskExecutionRecord, TeamConfig } from "@open-multi-agent/core";
 import type { OMADag, OMANode, OMAEdge, DecomposeMeta, DecomposeOptions } from "./types.js";
+import type { DAG, DAGNode } from "../dag/types.js";
 
 /** agent.role → OMANode.agentRole 的合法映射. */
 const ROLE_MAP: Record<string, OMANode["agentRole"]> = {
@@ -95,13 +99,30 @@ function toOMADag(tasks: readonly TaskExecutionRecord[], agents: AgentConfig[]):
   return { nodes, edges };
 }
 
+/** OMADag → DAG (Phase 3: 补 retries/timeoutMs/status/attempts). */
+function toDAG(oma: OMADag, defaults: { retries: number; timeoutMs: number }): DAG {
+  const nodes: DAGNode[] = oma.nodes.map((n) => ({
+    id: n.id,
+    task: n.description?.trim() || n.title, // executor 用 task 字段, 优先 description
+    agent: undefined, // 暂未绑定到具体 agent 实例
+    agentRole: n.agentRole,
+    dependsOn: [...n.dependsOn],
+    retries: defaults.retries,
+    timeoutMs: defaults.timeoutMs,
+    status: "pending",
+    attempts: 0,
+    result: undefined,
+  }));
+  return { nodes, edges: [...oma.edges] };
+}
+
 /**
  * 业务拆解器 — 暴露给 route 层.
  * 内部走 OMA runTeam(planOnly=true) 真调 LLM, 拆出 DAG.
  */
 export class Decomposer {
   /**
-   * 把一个高层目标拆解为 DAG.
+   * 把一个高层目标拆解为 OMADag (Phase 2 协议, 现有 /oma.team.create 走它).
    *
    * @param input   自然语言任务描述 (例: "写个科幻剧本大纲").
    * @param agents  候选 agent 列表, 至少 1 个; 空时降级使用单个 generic agent.
@@ -160,6 +181,29 @@ export class Decomposer {
       durationMs: Date.now() - startedAt,
     };
     return { taskDag, meta };
+  }
+
+  /**
+   * Phase 3: 把高层目标拆解为可执行 DAG (DAGNode 含 retries/timeoutMs/status).
+   * 给 /dag.execute 路由用. 内部走同一 OMA 拆解链路, 在 OMADag 上包一层执行参数.
+   *
+   * @param input     自然语言任务描述.
+   * @param agents    候选 agent 列表.
+   * @param options   拆解控制 (depth / minNodes / maxNodes).
+   * @param defaults  执行器默认参数 (retries / timeoutMs).
+   */
+  async decomposeIntoDag(
+    input: string,
+    agents: readonly AgentConfig[] = [],
+    options: DecomposeOptions = {},
+    defaults: { retries?: number; timeoutMs?: number } = {},
+  ): Promise<{ dag: DAG; meta: DecomposeMeta }> {
+    const { taskDag, meta } = await this.decompose(input, agents, options);
+    const dag = toDAG(taskDag, {
+      retries: defaults.retries ?? 1,
+      timeoutMs: defaults.timeoutMs ?? 30_000,
+    });
+    return { dag, meta };
   }
 }
 
