@@ -26,7 +26,6 @@
 │
 ├── src/
 │   ├── server.ts                          # Express 入口
-│   ├── oma-adapter.ts                     # OMA 适配器
 │   ├── oma-client.ts                      # OMA 单例引擎
 │   ├── routes/
 │   │   ├── loop-execute.ts

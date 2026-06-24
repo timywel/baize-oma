@@ -28,8 +28,11 @@ baize-loop 主控通过 [HttpSlotAdapter](https://github.com/timywel/baize-loop/
 ┌─────────────────────┐         HTTP (port 20060)         ┌──────────────────────────────────┐
 │ baize-loop (主控)   │ ────────────────────────────────> │ baize-oma (本仓, HTTP server)    │
 │ HttpSlotAdapter     │   POST /chat.agent.*              │   src/server.ts (Express)        │
-│                     │   GET  /health /manifest          │   src/oma-adapter.ts (路由)      │
+│                     │   GET  /health /manifest          │   src/routes/* (5 routers)       │
 └─────────────────────┘                                    │   src/oma-client.ts (单例引擎)   │
+                                                            │   src/decomposer/ (decompose)    │
+                                                            │   src/dag/ (executor + visualizer)│
+                                                            │   src/llm/client.ts (→ 20030)    │
                                                             │   vendor/open-multi-agent/      │
                                                             │   (vendored OMA 1.8.0)          │
                                                             └──────────────────────────────────┘

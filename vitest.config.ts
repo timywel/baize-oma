@@ -27,7 +27,6 @@ export default defineConfig({
         "src/__tests__/**",
         "src/**/*.d.ts",
         "src/llm/client.ts", // 排除: 走集成测试 (tests/integration/)
-        "src/oma-adapter.ts", // 排除: dead code (Phase 2 已被 routes 替代)
       ],
     },
   },

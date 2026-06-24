@@ -175,7 +175,7 @@ async function loop(task: string, maxIter: number = 5) {
 
 ### 7.2 Noticed but not touching (Scope Discipline)
 
-- `src/oma-adapter.ts` 现已是 dead code (inline handler 拆出后不再用), 留待后续清理
+- ~~`src/oma-adapter.ts` 现已是 dead code (inline handler 拆出后不再用)~~ — **Phase 4 已删除** (commit ea51f12)
 - `vendor/open-multi-agent/dist/` 体积大, 未审计 (Phase 1 范围)
 - 集成测试 `tests/integration/oma-decompose.test.mjs` 缺失 (Phase 4 范围)
 - `vitest.config.ts` coverage 门禁缺失 (Phase 1 T1.7 范围, 走 plan 文档)

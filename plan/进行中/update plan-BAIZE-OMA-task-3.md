@@ -187,7 +187,7 @@ app.use(dagExecuteRouter);
 
 ## 6. Noticed but not touching (Scope Discipline)
 
-- `src/oma-adapter.ts` 仍是 dead code (Phase 2 §7.2 标记), 留待后续清理
+- ~~`src/oma-adapter.ts` 仍是 dead code (Phase 2 §7.2 标记)~~ — **Phase 4 已删除** (commit ea51f12)
 - `src/decomposer/types.ts` 仍是 TODO 注释 + 占位, 没补详细注释 (Phase 4 范围)
 - `vitest.config.ts` 仍未加 coverage 门禁 (Phase 1 T1.7 范围)
 - 集成测试 `tests/integration/oma-decompose.test.mjs` 仍缺失 (Phase 4 范围)
