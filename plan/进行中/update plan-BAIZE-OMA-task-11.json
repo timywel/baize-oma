@@ -1,0 +1,106 @@
+{
+  "planId": "PLAN-BAIZE-OMA-PHASE11-WHITEBOX-20260625-205500",
+  "version": "1.0",
+  "createdAt": "2026-06-25T20:55:00+08:00",
+  "updatedAt": "2026-06-25T20:55:00+08:00",
+  "iteration": 11,
+  "status": "pending",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-PHASE11-WHITEBOX-20260625-205500.md",
+  "phase": "Phase 11: 白盒显现 (P11)",
+  "estimatedDuration": "1.5 周",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-10.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-10.json",
+    "scope": "Phase 10: 跨仓联调 (T4.1-T4.3 ✅)",
+    "completedAt": "2026-06-25T19:55:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T11.1.1",
+      "title": "src/whitebox/types.ts (WhiteboxSnapshot schema)",
+      "scope": "src/whitebox/types.ts",
+      "status": "not-started",
+      "linesEstimate": 120
+    },
+    {
+      "id": "T11.1.2",
+      "title": "src/whitebox/trace-buffer.ts (TraceRingBuffer N=20)",
+      "scope": "src/whitebox/trace-buffer.ts",
+      "status": "not-started",
+      "linesEstimate": 60
+    },
+    {
+      "id": "T11.1.3",
+      "title": "src/whitebox/i18n.ts (错误码 i18n key 映射)",
+      "scope": "src/whitebox/i18n.ts",
+      "status": "not-started",
+      "linesEstimate": 30
+    },
+    {
+      "id": "T11.2.1",
+      "title": "src/whitebox/inflight-tracker.ts",
+      "scope": "src/whitebox/inflight-tracker.ts",
+      "status": "not-started",
+      "linesEstimate": 80
+    },
+    {
+      "id": "T11.2.2",
+      "title": "src/whitebox/upstream.ts (vendor 状态检测)",
+      "scope": "src/whitebox/upstream.ts",
+      "status": "not-started",
+      "linesEstimate": 50
+    },
+    {
+      "id": "T11.2.3",
+      "title": "src/whitebox/snapshot.ts (聚合 build)",
+      "scope": "src/whitebox/snapshot.ts",
+      "status": "not-started",
+      "linesEstimate": 80
+    },
+    {
+      "id": "T11.3.1",
+      "title": "src/routes/whitebox.ts (3 端点)",
+      "scope": "src/routes/whitebox.ts",
+      "status": "not-started",
+      "linesEstimate": 80
+    },
+    {
+      "id": "T11.3.2",
+      "title": "src/server.ts 注册 whiteboxRouter",
+      "scope": "src/server.ts",
+      "status": "not-started",
+      "linesEstimate": 3
+    },
+    {
+      "id": "T11.4.1-T11.4.4",
+      "title": "5 routes 集成 trace + inFlight",
+      "scope": "src/routes/{decompose,team-schedule,loop-execute,dag-execute}.ts",
+      "status": "not-started",
+      "linesEstimate": 50
+    },
+    {
+      "id": "T11.5.1",
+      "title": "src/__tests__/whitebox.test.ts (6 case)",
+      "scope": "src/__tests__/whitebox.test.ts",
+      "status": "not-started",
+      "linesEstimate": 200
+    },
+    {
+      "id": "T11.5.2",
+      "title": "tests/smoke/curl-test.sh 加 /whitebox 烟测",
+      "scope": "tests/smoke/curl-test.sh",
+      "status": "not-started",
+      "linesEstimate": 10
+    },
+    {
+      "id": "T11.5.4",
+      "title": "git tag baize-oma-v0.4.0",
+      "scope": ".git/",
+      "status": "not-started",
+      "linesEstimate": 0
+    }
+  ],
+  "nextIteration": null
+}

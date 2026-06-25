@@ -636,13 +636,50 @@ plan/
 3. **CI 缓存** — 启用 pnpm store cache 加快 CI 冷启动
 4. **PR 模板优化** — 加"必须跑 `pnpm bench`"检查项
 
-### 8.2 跨仓 (等 baize-chat)
+### 8.2 🔴 白盒显现 (P11 优先, 跟 baize-loop 主仓规范对齐)
+
+按 `plan/refactor/slots-and-libs/8-slot-whitebox-observability-spec.md`, baize-oma 作为外部 http slot 必须实现:
+
+| 项 | 规范 | baize-oma 现状 |
+|----|------|----------------|
+| `GET /whitebox` 端点 | A2 强制 | ❌ 缺失 |
+| `WhiteboxSnapshot` schema (slotId/version/state/inFlight/lastError/trace) | A4 必填 | ❌ 缺失 |
+| `upstream` 字段 (vendor/version/endpoint/healthy) | 外部 slot 必填 | ❌ 缺失 |
+| `trace` ring buffer (N=20, ~1KB/条) | A5 必填 | ❌ 缺失 |
+| `inFlight` (正在执行的能力列表) | 必填 | ❌ 缺失 |
+| `lastError.code/message/trace_id` (i18n key) | A10 必填 | ⚠️ 部分 (路由层 errorResp, 无 trace_id) |
+| 性能约束 GET /whitebox < 100ms (P95) | A9 | — |
+
+**Why 优先**: baize-loop 主控 slot-registry 拉 8 slot 白盒数据, baize-chat 5 widget (AgentTeamStatus / LiveToolCall / ThinkStream / TokenCost / MultiSlotPanel) 订阅多 slot 流. 没有白盒 → 调试只能靠日志 + trace_id 跨服务 grep, 不符合 baize-chat "化黑盒为白盒"原则.
+
+**P11 估计**: ~300-400 行 (新建 `src/whitebox/` + `/whitebox` 路由 + WhiteboxSnapshot 实现 + 单测 + i18n)
+
+### 8.3 🔴 全程日志跟踪 (P12 优先, 跨请求追踪基础)
+
+baize-oma 当前**完全没有 logger 系统**:
+
+| 项 | 现状 |
+|----|------|
+| 结构化 logger (pino/winston) | ❌ 没有, 只有 `console.log` 启动信息 |
+| trace_id / requestId 生成 | ❌ 没有, 跨请求无法关联 |
+| 请求/响应/错误日志 | ❌ 没有, 路由层只返 `errorResp` |
+| trace ring buffer (N=20) | ❌ 没有, 跟白盒 spec 联动 |
+| 跨 slot 日志 grep 5s 定位 (A1) | ❌ 不可行, 无 trace_id |
+
+**Why 优先**: 
+- 调试时无 trace_id 跨请求追踪 = 黑盒
+- 5 widget (ThinkStream / LiveToolCall) 显示 trace 流需要 ring buffer
+- baize-loop 主控统一日志聚合需要统一格式
+
+**P12 估计**: ~250-350 行 (新建 `src/logger/` + trace_id middleware + ring buffer + 日志格式约定 + i18n 错误信息)
+
+### 8.4 跨仓 (等 baize-chat)
 
 1. **T4.4 baize-chat → oma → switch 端到端** — 等 baize-chat 重构完成
 2. **HttpSlotAdapter 三仓联调协议** — baize-chat 写客户端
 3. **错误码对齐** — baize-loop `meta/slot-api/types.ts` 错误格式统一
 
-### 8.3 文档同步
+### 8.5 文档同步
 
 1. **baize-loop 主仓 v0.3.5 状态** — `plan/refactor/slots-and-libs/slot-integration-unified-spec.md` §7 更新 (当前是 v0.3.0)
 2. **CHANGELOG.md** — baize-oma 仓主计划完整 changelog

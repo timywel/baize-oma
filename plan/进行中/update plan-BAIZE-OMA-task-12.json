@@ -1,0 +1,99 @@
+{
+  "planId": "PLAN-BAIZE-OMA-PHASE12-LOGGING-20260625-211500",
+  "version": "1.0",
+  "createdAt": "2026-06-25T21:15:00+08:00",
+  "updatedAt": "2026-06-25T21:15:00+08:00",
+  "iteration": 12,
+  "status": "pending",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-PHASE12-LOGGING-20260625-211500.md",
+  "phase": "Phase 12: 全程日志跟踪 (P12)",
+  "estimatedDuration": "0.9 周",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-11.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-11.json",
+    "scope": "Phase 11: 白盒显现 (P11)",
+    "completedAt": null
+  },
+  "tasks": [
+    {
+      "id": "T12.1.1",
+      "title": "src/logger/logger.ts (pino 实例)",
+      "scope": "src/logger/logger.ts",
+      "status": "not-started",
+      "linesEstimate": 50
+    },
+    {
+      "id": "T12.1.2",
+      "title": "src/logger/trace-id.ts (UUID v4 + middleware)",
+      "scope": "src/logger/trace-id.ts",
+      "status": "not-started",
+      "linesEstimate": 40
+    },
+    {
+      "id": "T12.1.3",
+      "title": "src/logger/i18n-log.ts (错误码 i18n key)",
+      "scope": "src/logger/i18n-log.ts",
+      "status": "not-started",
+      "linesEstimate": 30
+    },
+    {
+      "id": "T12.1.4",
+      "title": "package.json 加 pino 依赖",
+      "scope": "package.json",
+      "status": "not-started",
+      "linesEstimate": 3
+    },
+    {
+      "id": "T12.2.1",
+      "title": "src/server.ts 注册 trace_id middleware",
+      "scope": "src/server.ts",
+      "status": "not-started",
+      "linesEstimate": 5
+    },
+    {
+      "id": "T12.2.2-T12.2.5",
+      "title": "5 routes 接入 logger",
+      "scope": "src/routes/{decompose,team-schedule,loop-execute,dag-execute,whitebox}.ts",
+      "status": "not-started",
+      "linesEstimate": 75
+    },
+    {
+      "id": "T12.2.6",
+      "title": "src/whitebox/trace-buffer.ts 接入 logger",
+      "scope": "src/whitebox/trace-buffer.ts",
+      "status": "not-started",
+      "linesEstimate": 5
+    },
+    {
+      "id": "T12.3.1",
+      "title": "src/__tests__/logger.test.ts (5 case)",
+      "scope": "src/__tests__/logger.test.ts",
+      "status": "not-started",
+      "linesEstimate": 150
+    },
+    {
+      "id": "T12.3.2",
+      "title": "tests/smoke/curl-test.sh 加 X-Trace-Id 烟测",
+      "scope": "tests/smoke/curl-test.sh",
+      "status": "not-started",
+      "linesEstimate": 10
+    },
+    {
+      "id": "T12.3.3",
+      "title": "vitest.config.ts 加 src/logger/",
+      "scope": "vitest.config.ts",
+      "status": "not-started",
+      "linesEstimate": 3
+    },
+    {
+      "id": "T12.4.2",
+      "title": "git tag baize-oma-v0.4.1",
+      "scope": ".git/",
+      "status": "not-started",
+      "linesEstimate": 0
+    }
+  ],
+  "nextIteration": null
+}
