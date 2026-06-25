@@ -1,0 +1,63 @@
+{
+  "planId": "PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000",
+  "version": "1.2",
+  "createdAt": "2026-06-25T14:35:00+08:00",
+  "updatedAt": "2026-06-25T14:35:00+08:00",
+  "iteration": 10,
+  "status": "completed-partial",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-SELF-AUDIT-20260623-000000.md",
+  "phase": "Phase 10: 跨仓联调 (T4.1-T4.3 完成, T4.4 延后)",
+  "estimatedDuration": "1 session (~30 min)",
+  "actualDuration": "1 session (~5 min wall clock)",
+  "completedAt": "2026-06-25T14:35:00+08:00",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-9.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-9.json",
+    "scope": "Phase 9: vendor 体积裁剪",
+    "completedAt": "2026-06-25T01:30:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T10.1",
+      "title": "启动 baize-switch-core alt 端口 (20130/20131)",
+      "scope": "/tmp/baize-switch-alt.log",
+      "status": "completed",
+      "completedAt": "2026-06-25T14:25:00+08:00",
+      "notes": "20030 被 baize-loop api-router 占用, 用 20130/20131 跑 baize-switch-core"
+    },
+    {
+      "id": "T10.2",
+      "title": "curl 直测 switch /v1/messages",
+      "scope": "curl http://127.0.0.1:20130/v1/messages",
+      "status": "completed",
+      "completedAt": "2026-06-25T14:27:00+08:00",
+      "notes": "minimax provider 真实响应 (id: cht000eaf6b@dx19efe89dedfba60322, model: xopglm51, usage: { input: 7, output: 13 })"
+    },
+    {
+      "id": "T10.3",
+      "title": "baize-oma → switch 真链路",
+      "scope": "curl http://127.0.0.1:20060",
+      "status": "completed",
+      "completedAt": "2026-06-25T14:30:00+08:00",
+      "notes": "3 端点全通: /oma.team.create 200 + /dag.execute 200 (Hello there friend) + /chat.loop.execute 200 (done=true)"
+    },
+    {
+      "id": "T10.4",
+      "title": "写跨仓联调报告",
+      "scope": "temp/integration/cross-stack-link-20260625.md",
+      "status": "completed",
+      "completedAt": "2026-06-25T14:35:00+08:00",
+      "linesEstimate": 100
+    },
+    {
+      "id": "T10.5",
+      "title": "git commit + tag baize-oma-v0.3.5",
+      "scope": ".git/",
+      "status": "in-progress",
+      "linesEstimate": 0
+    }
+  ],
+  "nextIteration": null
+}
