@@ -1,0 +1,50 @@
+{
+  "planId": "PLAN-BAIZE-OMA-PHASE5-20260625-004200",
+  "version": "1.0",
+  "createdAt": "2026-06-25T01:05:00+08:00",
+  "updatedAt": "2026-06-25T01:05:00+08:00",
+  "iteration": 6,
+  "status": "in-progress",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-PHASE5-20260625-004200.md",
+  "phase": "Phase 6: 仓内继续优化 (覆盖率 80%→85% + CI build)",
+  "estimatedDuration": "1 session (~10 min)",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-5.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-5.json",
+    "scope": "Phase 5: 仓内质量提升 (P5.1-P5.5)",
+    "completedAt": "2026-06-25T00:50:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T6.1",
+      "title": "新建 src/__tests__/llm-client.test.ts (~150 行, 5 case)",
+      "scope": "src/__tests__/llm-client.test.ts",
+      "status": "not-started",
+      "linesEstimate": 150
+    },
+    {
+      "id": "T6.2",
+      "title": "vitest.config.ts 加入 src/llm/client.ts 到 include",
+      "scope": "vitest.config.ts",
+      "status": "not-started",
+      "linesEstimate": 5
+    },
+    {
+      "id": "T6.3",
+      "title": ".github/workflows/ci.yml 加 pnpm build 步骤",
+      "scope": ".github/workflows/ci.yml",
+      "status": "not-started",
+      "linesEstimate": 5
+    },
+    {
+      "id": "T6.4",
+      "title": "git commit + tag baize-oma-v0.3.1",
+      "scope": ".git/",
+      "status": "not-started",
+      "linesEstimate": 0
+    }
+  ],
+  "nextIteration": null
+}

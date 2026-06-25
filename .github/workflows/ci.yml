@@ -52,6 +52,10 @@ jobs:
       - name: Lint (tsc --noEmit)
         run: pnpm lint
 
+      # 步骤 1.5: 构建 (tsc emit dist/), 验证 build 流程
+      - name: Build (tsc)
+        run: pnpm build
+
       # 步骤 2: 单元测试 + coverage
       - name: Unit tests + coverage
         run: pnpm test:coverage
