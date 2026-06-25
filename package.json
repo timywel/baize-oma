@@ -1,6 +1,6 @@
 {
   "name": "baize-oma",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Baize slot adapter for @open-multi-agent/core. HTTP server wrapping OMA framework, exposed as BaizeSlot protocol. Vendored OMA under vendor/ for patch-package upgrade flow.",
   "main": "dist/server.js",
   "type": "module",

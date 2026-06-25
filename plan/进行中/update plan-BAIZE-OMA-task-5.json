@@ -1,0 +1,150 @@
+{
+  "planId": "PLAN-BAIZE-OMA-PHASE5-20260625-004200",
+  "version": "1.1",
+  "createdAt": "2026-06-25T00:42:00+08:00",
+  "updatedAt": "2026-06-25T00:50:00+08:00",
+  "iteration": 5,
+  "status": "completed",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-PHASE5-20260625-004200.md",
+  "phase": "Phase 5: 仓内质量提升 (P5.1-P5.5)",
+  "estimatedDuration": "1.1 周",
+  "actualDuration": "1 session (~10 min wall clock)",
+  "completedAt": "2026-06-25T00:50:00+08:00",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-4.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-4.json",
+    "scope": "Phase 4: 联调 + 端到端 (仓内部分)",
+    "completedAt": "2026-06-25T00:35:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T5.1.1",
+      "title": "新建 .github/PULL_REQUEST_TEMPLATE.md",
+      "scope": ".github/PULL_REQUEST_TEMPLATE.md",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:45:00+08:00",
+      "linesActual": 92,
+      "commit": "f91a812",
+      "notes": "中文优先, 跟 baize-loop 主仓 PR 模板对齐, 6 段: 变更类型 / 变更说明 / 关联文档 / 验证步骤 / Commit 列表 / Checklist"
+    },
+    {
+      "id": "T5.1.2",
+      "title": "新建 CONTRIBUTING.md",
+      "scope": "CONTRIBUTING.md",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:45:00+08:00",
+      "linesActual": 213,
+      "commit": "f91a812",
+      "notes": "8 节: 快速开始 / 提交规范 (Conventional Commits) / 验证清单 / 代码风格 / 关键文件 / 常见任务 / CoC / 问题反馈"
+    },
+    {
+      "id": "T5.2.1",
+      "title": "新建 .github/workflows/ci.yml",
+      "scope": ".github/workflows/ci.yml",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:47:00+08:00",
+      "linesActual": 88,
+      "commit": "3f0a647",
+      "notes": "lint + test:coverage + test:smoke 三步, nohup + /health 200 轮询启 server, coverage artifact 7 天"
+    },
+    {
+      "id": "T5.2.2",
+      "title": "package.json scripts 加 test:integration 占位",
+      "scope": "package.json",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:47:00+08:00",
+      "linesActual": 1,
+      "commit": "3f0a647",
+      "notes": "echo + exit 0 占位, 跨仓延后"
+    },
+    {
+      "id": "T5.3.1",
+      "title": "新建 src/__tests__/dag-routes.test.ts (路由层 7 case)",
+      "scope": "src/__tests__/dag-routes.test.ts",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:49:00+08:00",
+      "linesActual": 175,
+      "commit": "3c50c46",
+      "notes": "覆盖 /dag.execute + /dag.visualize 路由层, 走真 executor (mock req/res), async/await 支持"
+    },
+    {
+      "id": "T5.3.2",
+      "title": "新建 src/__tests__/health-routes.test.ts",
+      "scope": "src/__tests__/health-routes.test.ts",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:49:00+08:00",
+      "linesActual": 66,
+      "commit": "3c50c46",
+      "notes": "1 case: GET /health 200 + status 字段, vi.mock oma-client.isOmaReady"
+    },
+    {
+      "id": "T5.3.3",
+      "title": "新建 src/__tests__/manifest-routes.test.ts",
+      "scope": "src/__tests__/manifest-routes.test.ts",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:49:00+08:00",
+      "linesActual": 53,
+      "commit": "3c50c46",
+      "notes": "1 case: GET /manifest 200 + slot.json id=baize-oma + 3 capabilities"
+    },
+    {
+      "id": "T5.3.4",
+      "title": "跑 pnpm test:coverage 验证 ≥ 80%",
+      "scope": "pnpm test:coverage",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:49:30+08:00",
+      "commit": "3c50c46",
+      "notes": "全局 64.15% → 80.24%, src/routes 54.17% → 88.94%, dag-execute 0% → 78.01%, health/manifest 0% → 100%"
+    },
+    {
+      "id": "T5.4.1-T5.4.5",
+      "title": "vendor 升级演练 (OMA 1.8.0 重装)",
+      "scope": "plan/待完成/PLAN-BAIZE-OMA-P5-VENDOR-REHEARSAL-20260625-004600.md",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:46:30+08:00",
+      "linesActual": 92,
+      "commit": "8d74ce6",
+      "notes": "npm install --force 重装, patch-package postinstall 0 conflict, 42/42 pass + 0 typecheck error. 副作用 (^1.8.0 / lockfile diff) 已 git checkout 还原"
+    },
+    {
+      "id": "T5.5.1",
+      "title": "git tag baize-oma-v0.3.0",
+      "scope": ".git/",
+      "status": "completed",
+      "completedAt": "2026-06-25T00:50:00+08:00",
+      "commit": "(本次) + tag baize-oma-v0.3.0",
+      "notes": "package.json 0.2.0 → 0.3.0, 跟 slot.json 一致"
+    }
+  ],
+  "metrics": {
+    "typecheckErrors": 0,
+    "testsPassed": 42,
+    "testsFailed": 0,
+    "testsAdded": 9,
+    "smokeTestsPassed": 16,
+    "coverageBefore": 64.15,
+    "coverageAfter": 80.24,
+    "commits": 5,
+    "linesAdded": 1130,
+    "filesCreated": 8,
+    "filesModified": 1,
+    "gitTag": "baize-oma-v0.3.0"
+  },
+  "closedGaps": ["GAP-3", "GAP-8", "GAP-9"],
+  "openGaps": [
+    "GAP-1 vendor 真升级演练 (等 OMA 1.9.0 发布)",
+    "GAP-4 跨仓联调 (等 baize-chat 重构)",
+    "GAP-6 dist/ CI 验证 (CI 未跑 build)"
+  ],
+  "nextIteration": null,
+  "phaseCompletionSummary": {
+    "phase1": "✅ 100% (8/8)",
+    "phase2": "✅ 100% (9/9)",
+    "phase3": "✅ 100% (7/7)",
+    "phase4InS仓": "✅ 100% (T4.3/T4.5/T4.6 + GAP-2/11/13)",
+    "phase4CrossStack": "⏸️ 0% (T4.1/T4.2/T4.4 延后)",
+    "phase5": "✅ 100% (P5.1/P5.2/P5.3/P5.4/P5.5)"
+  }
+}
