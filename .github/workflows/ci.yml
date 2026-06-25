@@ -1,0 +1,94 @@
+# baize-oma CI workflow (2026-06-25 建立)
+#
+# 跑三步:
+# 1. lint (pnpm lint = tsc --noEmit)
+# 2. test + coverage (pnpm test:coverage)
+# 3. smoke (pnpm dev & sleep 5 && pnpm test:smoke)
+#
+# 触发:
+# - push 到 main 分支
+# - 任何 PR (opened / synchronize / reopened)
+#
+# 不依赖外部服务 (baize-switch / baize-chat), 仓内自洽.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# 取消同一分支的旧 run, 节省 CI 配额
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    name: lint + test + smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: pnpm
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 步骤 1: 类型检查 (无 emit, 仅 tsc --noEmit)
+      - name: Lint (tsc --noEmit)
+        run: pnpm lint
+
+      # 步骤 2: 单元测试 + coverage
+      - name: Unit tests + coverage
+        run: pnpm test:coverage
+
+      # 步骤 3: 烟测 (需启 server)
+      # 用 nohup + & 后台跑, sleep 5 等 server ready
+      - name: Start dev server
+        run: |
+          nohup pnpm dev > /tmp/oma-server.log 2>&1 &
+          echo "server pid=$!"
+          # 等 /health 200 (最多 30s)
+          for i in $(seq 1 30); do
+            if curl -sS --max-time 2 http://127.0.0.1:20060/health > /dev/null 2>&1; then
+              echo "server ready after ${i}s"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "server failed to start"
+          cat /tmp/oma-server.log
+          exit 1
+
+      - name: Smoke tests
+        run: pnpm test:smoke
+
+      - name: Stop dev server
+        if: always()
+        run: |
+          pkill -f "tsx watch src/server.ts" || true
+          pkill -f "node.*baize-oma.*server" || true
+
+      # 上传 coverage 报告 (artifact 7 天, 供后续分析)
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+          if-no-files-found: warn
