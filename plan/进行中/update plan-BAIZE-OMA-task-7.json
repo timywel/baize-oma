@@ -1,0 +1,50 @@
+{
+  "planId": "PLAN-BAIZE-OMA-PERF-20260625-011000",
+  "version": "1.0",
+  "createdAt": "2026-06-25T01:10:00+08:00",
+  "updatedAt": "2026-06-25T01:10:00+08:00",
+  "iteration": 7,
+  "status": "in-progress",
+  "owner": "timywel",
+  "scope": "/home/timywel/AI_Product/baize-slot/baize-oma/",
+  "parentPlanPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/待完成/PLAN-BAIZE-OMA-PHASE5-20260625-004200.md",
+  "phase": "Phase 7: 性能基准 (独立子项目, P8+ 优化前置)",
+  "estimatedDuration": "1 session (~15 min)",
+  "previousIteration": {
+    "planPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-6.md",
+    "taskJsonPath": "/home/timywel/AI_Product/baize-slot/baize-oma/plan/进行中/update plan-BAIZE-OMA-task-6.json",
+    "scope": "Phase 6: 覆盖率 + CI build",
+    "completedAt": "2026-06-25T01:05:00+08:00"
+  },
+  "tasks": [
+    {
+      "id": "T7.1",
+      "title": "新建 src/__bench__/dag-executor.bench.ts",
+      "scope": "src/__bench__/dag-executor.bench.ts",
+      "status": "not-started",
+      "linesEstimate": 200
+    },
+    {
+      "id": "T7.2",
+      "title": "package.json scripts 加 bench 命令",
+      "scope": "package.json",
+      "status": "not-started",
+      "linesEstimate": 3
+    },
+    {
+      "id": "T7.3",
+      "title": "跑 benchmark, 写结果到 temp/bench/dag-executor-20260625.md",
+      "scope": "temp/bench/dag-executor-20260625.md",
+      "status": "not-started",
+      "linesEstimate": 100
+    },
+    {
+      "id": "T7.4",
+      "title": "git commit + tag baize-oma-v0.3.2",
+      "scope": ".git/",
+      "status": "not-started",
+      "linesEstimate": 0
+    }
+  ],
+  "nextIteration": null
+}

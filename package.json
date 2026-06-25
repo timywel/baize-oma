@@ -14,6 +14,7 @@
     "test:coverage": "vitest run --coverage",
     "test:smoke": "bash tests/smoke/curl-test.sh",
     "test:integration": "echo '[test:integration] 跨仓联调, 需 baize-switch + baize-chat 就绪 (Phase 4 跨仓延后)'; exit 0",
+    "bench": "tsx src/__bench__/dag-executor.bench.ts",
     "postinstall": "patch-package || true"
   },
   "keywords": [

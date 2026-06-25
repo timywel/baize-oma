@@ -18,3 +18,5 @@ coverage/
 # 临时 / 日志
 *.log
 .tmp/
+temp/
+temp/bench/
