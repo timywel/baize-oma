@@ -34,6 +34,9 @@ import { Router, type Request, type Response, type Router as ExpressRouter } fro
 import { Decomposer } from "../decomposer/decomposer.js";
 import type { AgentConfig } from "@open-multi-agent/core";
 import type { DecomposeOptions } from "../decomposer/types.js";
+import { logRequest, logResponse, logError } from "../logger/i18n-log.js";
+import { globalInFlightTracker } from "../whitebox/inflight-tracker.js";
+import { i18nErrorKey } from "../whitebox/i18n.js";
 
 const router: ExpressRouter = Router();
 const decomposer = new Decomposer();
@@ -44,6 +47,7 @@ function errorResp(res: Response, status: number, code: string, message: string)
 }
 
 router.post("/oma.team.create", async (req: Request, res: Response) => {
+  const start = Date.now();
   const body = (req.body ?? {}) as {
     name?: string;
     agents?: Array<{ name: string; model?: string; systemPrompt?: string }>;
@@ -52,16 +56,19 @@ router.post("/oma.team.create", async (req: Request, res: Response) => {
   };
 
   if (!body.input?.trim()) {
-    return errorResp(res, 400, "INVALID_REQUEST", "input 必填且非空");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   if (!body.agents?.length) {
-    return errorResp(res, 400, "INVALID_REQUEST", "agents 至少 1 个");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   for (const a of body.agents) {
     if (!a.name) {
-      return errorResp(res, 400, "INVALID_REQUEST", "agents[].name 必填");
+      return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
     }
   }
+
+  logRequest(req, { capability: "task.decompose", input_size: body.input.length });
+  globalInFlightTracker.start("task.decompose", { name: body.name });
 
   // 路由层 → AgentConfig[] (用 defaultModel 兜底, 跟 oma-adapter 保持一致)
   const agents: AgentConfig[] = body.agents.map((a) => ({
@@ -72,10 +79,14 @@ router.post("/oma.team.create", async (req: Request, res: Response) => {
 
   try {
     const result = await decomposer.decompose(body.input, agents, body.options ?? {});
+    const duration = Date.now() - start;
+    logResponse(req, { capability: "task.decompose", status: 200, duration_ms: duration, extra: { node_count: result.taskDag.nodes.length } });
+    globalInFlightTracker.end("task.decompose");
     res.json({ status: 200, body: { name: body.name, ...result } });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return errorResp(res, 500, "DECOMPOSE_FAILED", msg);
+    globalInFlightTracker.end("task.decompose");
+    logError(req, err, { code: "DECOMPOSE_FAILED", capability: "task.decompose" });
+    return errorResp(res, 500, "DECOMPOSE_FAILED", i18nErrorKey("DECOMPOSE_FAILED"));
   }
 });
 

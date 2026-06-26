@@ -32,6 +32,9 @@
 import { Router, type Request, type Response, type Router as ExpressRouter } from "express";
 import { getOmaEngine, isOmaReady } from "../oma-client.js";
 import type { AgentConfig, TeamConfig } from "@open-multi-agent/core";
+import { logRequest, logResponse, logError } from "../logger/i18n-log.js";
+import { globalInFlightTracker } from "../whitebox/inflight-tracker.js";
+import { i18nErrorKey } from "../whitebox/i18n.js";
 
 const router: ExpressRouter = Router();
 
@@ -51,25 +54,31 @@ interface TeamScheduleRequest {
 }
 
 router.post("/chat.agent.team.schedule", async (req: Request, res: Response) => {
+  const start = Date.now();
   const body = (req.body ?? {}) as TeamScheduleRequest;
 
   if (!body.team?.name?.trim()) {
-    return errorResp(res, 400, "INVALID_REQUEST", "team.name 必填");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   if (!body.goal?.trim()) {
-    return errorResp(res, 400, "INVALID_REQUEST", "goal 必填且非空");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   if (!body.team.agents?.length) {
-    return errorResp(res, 400, "INVALID_REQUEST", "team.agents 至少 1 个");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   for (const a of body.team.agents) {
     if (!a.name) {
-      return errorResp(res, 400, "INVALID_REQUEST", "team.agents[].name 必填");
+      return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
     }
   }
 
+  logRequest(req, { capability: "chat.agent.team.schedule", input_size: body.goal.length });
+  globalInFlightTracker.start("chat.agent.team.schedule", { team_name: body.team.name });
+
   if (!isOmaReady()) {
-    return errorResp(res, 503, "ENGINE_NOT_READY", "OMA 引擎未初始化");
+    globalInFlightTracker.end("chat.agent.team.schedule");
+    logError(req, new Error("OMA engine not ready"), { code: "ENGINE_NOT_READY", capability: "chat.agent.team.schedule" });
+    return errorResp(res, 503, "ENGINE_NOT_READY", i18nErrorKey("ENGINE_NOT_READY"));
   }
 
   // request agents[] → AgentConfig[]
@@ -102,6 +111,15 @@ router.post("/chat.agent.team.schedule", async (req: Request, res: Response) => 
       };
     }
 
+    const duration = Date.now() - start;
+    logResponse(req, {
+      capability: "chat.agent.team.schedule",
+      status: 200,
+      duration_ms: duration,
+      extra: { success: result.success, tasks: result.tasks?.length ?? 0 },
+    });
+    globalInFlightTracker.end("chat.agent.team.schedule");
+
     res.json({
       status: 200,
       body: {
@@ -113,8 +131,9 @@ router.post("/chat.agent.team.schedule", async (req: Request, res: Response) => 
       },
     });
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return errorResp(res, 500, "TEAM_FAILED", msg);
+    globalInFlightTracker.end("chat.agent.team.schedule");
+    logError(req, err, { code: "TEAM_SCHEDULE_FAILED", capability: "chat.agent.team.schedule" });
+    return errorResp(res, 500, "TEAM_SCHEDULE_FAILED", i18nErrorKey("TEAM_SCHEDULE_FAILED"));
   }
 });
 

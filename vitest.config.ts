@@ -22,6 +22,8 @@ export default defineConfig({
         "src/server.ts",
         "src/oma-client.ts",
         "src/llm/client.ts",
+        "src/whitebox/**/*.ts",
+        "src/logger/**/*.ts",
       ],
       exclude: [
         "src/__tests__/**",

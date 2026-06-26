@@ -49,6 +49,9 @@ import { toAscii, toMermaid } from "../dag/visualizer.js";
 import type { AgentConfig } from "@open-multi-agent/core";
 import type { DecomposeOptions } from "../decomposer/types.js";
 import type { DAG, DAGExecutionOptions, DAGNode } from "../dag/types.js";
+import { logRequest, logResponse, logError } from "../logger/i18n-log.js";
+import { globalInFlightTracker } from "../whitebox/inflight-tracker.js";
+import { i18nErrorKey } from "../whitebox/i18n.js";
 
 const router: ExpressRouter = Router();
 const decomposer = new Decomposer();
@@ -90,6 +93,7 @@ function normalizeDag(dag: { nodes: Array<Record<string, unknown>>; edges?: Arra
 }
 
 router.post("/dag.execute", async (req: Request, res: Response) => {
+  const start = Date.now();
   const body = (req.body ?? {}) as {
     input?: string;
     agents?: Array<{ name: string; model?: string; systemPrompt?: string }>;
@@ -100,8 +104,11 @@ router.post("/dag.execute", async (req: Request, res: Response) => {
 
   // 入参校验: input 或 dag 二选一
   if (!body.input?.trim() && !body.dag) {
-    return errorResp(res, 400, "INVALID_REQUEST", "input 或 dag 至少传一个");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
+
+  logRequest(req, { capability: "task.dag.execute", input_size: body.input?.length });
+  globalInFlightTracker.start("task.dag.execute", { has_dag: !!body.dag });
 
   // 1) 拿到 DAG
   let dag: DAG;
@@ -137,13 +144,17 @@ router.post("/dag.execute", async (req: Request, res: Response) => {
       validateDag(dag);
     } catch (err) {
       if (err instanceof DAGValidationError) {
-        return errorResp(res, 400, err.code, err.message);
+        globalInFlightTracker.end("task.dag.execute");
+        logError(req, err, { code: err.code, capability: "task.dag.execute" });
+        return errorResp(res, 400, err.code, i18nErrorKey(err.code));
       }
       throw err;
     }
   } catch (err) {
+    globalInFlightTracker.end("task.dag.execute");
+    logError(req, err, { code: "DAG_INVALID", capability: "task.dag.execute" });
     const msg = err instanceof Error ? err.message : String(err);
-    return errorResp(res, 400, "DAG_INVALID", msg);
+    return errorResp(res, 400, "DAG_INVALID", i18nErrorKey("DAG_INVALID"));
   }
 
   // 2) 走 executor
@@ -156,6 +167,14 @@ router.post("/dag.execute", async (req: Request, res: Response) => {
 
   try {
     const result = await executeDag(dag, execOptions);
+    const duration = Date.now() - start;
+    logResponse(req, {
+      capability: "task.dag.execute",
+      status: 200,
+      duration_ms: duration,
+      extra: { dag_status: result.status, node_count: dag.nodes.length },
+    });
+    globalInFlightTracker.end("task.dag.execute");
     res.json({
       status: 200,
       body: {
@@ -176,21 +195,23 @@ router.post("/dag.execute", async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
+    globalInFlightTracker.end("task.dag.execute");
     if (err instanceof DAGValidationError) {
-      return errorResp(res, 400, err.code, err.message);
+      logError(req, err, { code: err.code, capability: "task.dag.execute" });
+      return errorResp(res, 400, err.code, i18nErrorKey(err.code));
     }
-    const msg = err instanceof Error ? err.message : String(err);
-    return errorResp(res, 500, "DAG_EXECUTE_FAILED", msg);
+    logError(req, err, { code: "DAG_EXECUTE_FAILED", capability: "task.dag.execute" });
+    return errorResp(res, 500, "DAG_EXECUTE_FAILED", i18nErrorKey("DAG_EXECUTE_FAILED"));
   }
 });
 
-/** GET /dag.visualize — 纯可视化 (debug 用). */
+/** POST /dag.visualize — 纯可视化 (debug 用). */
 router.post("/dag.visualize", (req: Request, res: Response) => {
   const body = (req.body ?? {}) as {
     dag?: { nodes: Array<Record<string, unknown>>; edges?: Array<{ from: string; to: string }> };
   };
   if (!body.dag) {
-    return errorResp(res, 400, "INVALID_REQUEST", "dag 必填");
+    return errorResp(res, 400, "INVALID_REQUEST", i18nErrorKey("INVALID_REQUEST"));
   }
   try {
     const dag = normalizeDag(body.dag);
@@ -204,10 +225,9 @@ router.post("/dag.visualize", (req: Request, res: Response) => {
     });
   } catch (err) {
     if (err instanceof DAGValidationError) {
-      return errorResp(res, 400, err.code, err.message);
+      return errorResp(res, 400, err.code, i18nErrorKey(err.code));
     }
-    const msg = err instanceof Error ? err.message : String(err);
-    return errorResp(res, 500, "VISUALIZE_FAILED", msg);
+    return errorResp(res, 500, "VISUALIZE_FAILED", i18nErrorKey("VISUALIZE_FAILED"));
   }
 });
 

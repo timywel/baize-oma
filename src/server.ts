@@ -36,17 +36,26 @@
 
 import express, { type Request, type Response, type NextFunction } from "express";
 import { initOmaEngine } from "./oma-client.js";
+import { traceIdMiddleware } from "./logger/trace-id.js";
+import { logger } from "./logger/logger.js";
 import healthRouter from "./routes/health.js";
 import manifestRouter from "./routes/manifest.js";
 import decomposeRouter from "./routes/decompose.js";
 import teamScheduleRouter from "./routes/team-schedule.js";
 import loopExecuteRouter from "./routes/loop-execute.js";
 import dagExecuteRouter from "./routes/dag-execute.js";
+import whiteboxRouter from "./routes/whitebox.js";
 
 const PORT = Number(process.env.BAIZE_OMA_PORT ?? 20060);
 
 const app = express();
 app.use(express.json({ limit: "4mb" }));
+
+// Phase 12: trace_id middleware (在所有路由之前, 让日志和白盒都拿到)
+app.use(traceIdMiddleware);
+
+// Phase 12: 启动日志
+logger.info({ msg: "baize-oma server starting", port: PORT });
 
 /** 能力路由 (Phase 4: 把 /health 和 /manifest 也拆成 router, 占位 stub 接入) */
 app.use(healthRouter);
@@ -55,6 +64,7 @@ app.use(decomposeRouter);
 app.use(teamScheduleRouter);
 app.use(loopExecuteRouter);
 app.use(dagExecuteRouter);
+app.use(whiteboxRouter);
 
 /** 404 兜底 */
 app.use((req: Request, res: Response) => {
